@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:background="@drawable/background">
+    
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:padding="10dp"
+        android:textColor="@android:color/background_light" >
+    </ListView>
+    
+    <LinearLayout
+        android:id="@+id/view_draw"
+        android:layout_width="750dp"
+        android:layout_height="430dp"
+        android:layout_above="@+id/tempo_bar"
+        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@+id/button_undo"
+        android:layout_toRightOf="@+id/button_menu"
+        android:orientation="horizontal" >
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/music_bar"
+        android:layout_width="50dp"
+        android:layout_height="430dp"
+        android:layout_alignBottom="@+id/view_draw"
+        android:layout_alignParentLeft="true"
+        android:orientation="horizontal" >
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tempo_bar"
+        android:layout_width="700dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@+id/view_draw"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/button_undo"
+        android:orientation="horizontal" >
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/button_undo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal" 
+        android:src="@drawable/button_undo" 
+        android:background="#00000000"
+        android:contentDescription="@string/button_undo" >
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/button_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/music_bar"
+        android:src="@drawable/button_status_draw" 
+        android:background="#00000000"
+        android:contentDescription="@string/button_menu">
+
+    </ImageButton>
+
+    <ImageButton
+        android:id="@+id/button_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/button_color_green"
+        android:background="#00000000"
+        android:contentDescription="@string/button_color">
+    </ImageButton>
+    
+    <EditText
+	    android:id="@+id/name_editor"  
+	    android:layout_width="match_parent"  
+	    android:layout_height="wrap_content" 
+	    android:imeOptions="actionDone"
+	    android:singleLine="true" 
+	    android:inputType="text"
+	    android:visibility="gone">  
+	</EditText>  
+
+</RelativeLayout>
