@@ -127,7 +127,7 @@ public class DrawLines extends View implements OnClickListener{
 					Declare.melody[Declare.color_status].add(0);	
 				}
 				Declare.melody[Declare.color_status].add(tempoId, note);// 添加了一个音
-				Declare.drawSoundManager.playSound(getIndexOfSound(note));
+				Declare.drawSoundManager.playSound(getIndexOfSound(note) + Declare.color_status * 22);
 				//Log.v("What did you store???", ""+Declare.melody[Declare.color_status].get(tempoId));
 				//Log.v("Actual x and y", "x = " + tempoX + " y = " + note);
 			}
