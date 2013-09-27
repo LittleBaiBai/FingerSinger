@@ -1,3 +1,4 @@
+/*Master branch*/
 package com.game.fingersinger;
 
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -27,42 +29,44 @@ import android.widget.Button;
 
 
 
-public class DrawLines extends View implements OnClickListener{
-	private Bitmap mBitmap, tempBitmap;;
-	private Canvas mCanvas;
-	private Path mPath;
+public class DrawLines extends View{
+	private Bitmap mBitmap;	//画布的bitmap
 	private Paint mBitmapPaint;// 画布的画笔
+	private Canvas mCanvas;	//画布
+	private Path mPath;	//真实的时的路径
 	private Paint mPaint;// 真实的画笔
 	private float mX, mY;// 临时点坐标
-	private float startX; //每条曲线在X轴的起点
-	private int tempoId; //曲线当前所在节拍
-	private int note; //屏幕最后一个检测到的点的音高
-	private float tempoX;
+	private int tempoId; //曲线当前点所在节拍
+	private int note, note1; //曲线当前点的音高
+	private int tempoId1;
 	private static final float TOUCH_TOLERANCE = 3;
 	private boolean candraw = false;
-
-	private int tempo_length = 30;
+	private int tempo_length = 30;//节拍之间的最短距离
 
 	// 保存Path路径的集合,用List集合来模拟栈
 	private static List<DrawPath> savePath;
 	// 记录Path路径的对象
-	private DrawPath dp;
-
+	private DrawPath dp;	//用于画已保存的路径
 	private class DrawPath {
 		public Path path;// 路径
 		public Paint paint;// 画笔
+		public DrawPath(){
+			path = new Path();
+			paint = new Paint();
+			paint.setAntiAlias(true);
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setStrokeJoin(Paint.Join.ROUND);// 设置外边缘
+			paint.setStrokeCap(Paint.Cap.SQUARE);// 形状
+			paint.setStrokeWidth(8);// 画笔宽度
+		}
 	}
 	public DrawLines(Context context,AttributeSet attrs) {
 		super(context);
 	}
 	public DrawLines(Context context) {
 		super(context);
-		
 		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
 				Bitmap.Config.ARGB_8888);
-		if(mBitmap == null){
-			Log.v("Error","mBitmap is null");
-		}
 		// 保存一次一次绘制出来的图形
 		mCanvas = new Canvas(mBitmap);
 		mBitmapPaint = new Paint(Paint.DITHER_FLAG);
@@ -72,37 +76,28 @@ public class DrawLines extends View implements OnClickListener{
 		mPaint.setStrokeJoin(Paint.Join.ROUND);// 设置外边缘
 		mPaint.setStrokeCap(Paint.Cap.SQUARE);// 形状
 		mPaint.setStrokeWidth(8);// 画笔宽度
-		mPaint.setColor(0xFF000000);// 画笔颜色
 		mPaint.setColor(Declare.color_status);// 画笔颜色
 		savePath = new ArrayList<DrawPath>();
 		setWillNotDraw(false);
-		if(mBitmap!=null){
-	//		Log.v("RIGHT","mBitmap not null");
-		}
 	}
 	
 	@Override
 	
 	public void onDraw(Canvas canvas) {
-	//	Log.v("B","screemWidth = " + screenWidth);
-	//	Log.v("B","screemHeight = " + screenHeight);
 		
 		canvas.drawColor(Color.TRANSPARENT);
 		// 将前面已经画过得显示出来
 		canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
-		mPaint.setColor(Declare.colors[Declare.color_status]);// 画笔颜色
-		Log.v("Color",""+Declare.colors[Declare.color_status]);
+		mPaint.setColor(Declare.colors[Declare.color_status]);// 选择画笔颜色
 		
 		if (mPath != null) {
 			// 实时的显示
 			canvas.drawPath(mPath, mPaint);
-			
 		}
-		
 	}
 	
 	private boolean inCanvas(float x, float y){
-		if(x < (Declare.screen_width - Declare.button_menu_horizontal) || y < (Declare.screen_height - Declare.button_color_vertical)){
+		if(Declare.menu_status == 1 && (x < (Declare.screen_width - Declare.button_menu_horizontal) || y < (Declare.screen_height - Declare.button_color_vertical))){
 			return true; 
 		}
 		return false;
@@ -112,73 +107,56 @@ public class DrawLines extends View implements OnClickListener{
 		candraw = false;
 		if (inCanvas(x, y)){
 			candraw = true;
-			Log.v("validTouch", "" + x + ", " + y);
-			mPath.moveTo(x, y);
+			add_last_edit();
+			tempoId = (int)(x/tempo_length);
+			note = (int)y;
+			Log.v("tempoID", "" + tempoId);
+			if(note!=0){//已按下
+				for( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++){
+					Declare.melody[Declare.color_status].notes.add(0);	
+				}
+				Declare.melody[Declare.color_status].notes.set(tempoId, note);
+			}
+			mPath.moveTo(tempoId*tempo_length, y);
 			mX = x;
 			mY = y;
 		}
 	}
 
 	private void touch_move(float x, float y) {
-		if(candraw && inCanvas(x, y) && x > mX){
-//			Log.v("Enter","x = "+x + ", y = " + y);
-			if((int)x/tempo_length != tempoId && note!=0){//已进入下一节拍
-				for( int i = Declare.melody[Declare.color_status].size(); i <= tempoId; i++){
-					Declare.melody[Declare.color_status].add(0);	
+		tempoId = (int)(x/tempo_length);
+		note = (int)y;
+		if(candraw && inCanvas(x, y) && x > mX){ // 起点在画布内，画线在画布内，没有往回画
+			if(note!=0){
+				for( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++){
+					Declare.melody[Declare.color_status].notes.add(0);	
 				}
-				Declare.melody[Declare.color_status].add(tempoId, note);// 添加了一个音
-				Declare.drawSoundManager.playSound(getIndexOfSound(note) + Declare.color_status * 22);
-				//Log.v("What did you store???", ""+Declare.melody[Declare.color_status].get(tempoId));
-				//Log.v("Actual x and y", "x = " + tempoX + " y = " + note);
+					Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
 			}
-			tempoId = (int)x/tempo_length;
-			tempoX = x;
-			note = (int)y;
-			mPath.lineTo(x, y);
-		//	mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+			mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
 			mX = x;
 			mY = y;
-		/*	float dx = Math.abs(x - mX);
-			float dy = Math.abs(mY - y);
-			if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-				// 从x1,y1到x2,y2画一条贝塞尔曲线，更平滑(直接用mPath.lineTo也是可以的)
-				mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-				mX = x;
-				mY = y;
-			}*/
+		
 		}
 		
 	}
 
-	private int getIndexOfSound(int note) {
-		if (note < Declare.note_top_dist) {
-			Log.v("SoundIndex", note + " / 21: <" + Declare.note_top_dist);
-			return 21;
-		}
-		else if (note >= Declare.note_button_dist) {
-			Log.v("SoundIndex", note + " / 1: >=" + Declare.note_button_dist);
-			return 1;
-		}
-		else {
-			int temp = 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
-			Log.v("SoundIndex", note + " / " + temp);
-			return 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
-		}
-	}
-	
 	private void touch_up() {
 		if(candraw){
 			mPath.lineTo(mX, mY);
 			mCanvas.drawPath(mPath, mPaint);
-			// 将一条完整的路径保存下来(相当于入栈操作)
-			savePath.add(dp);
+			Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
 			mPath = null;// 重新置空
-			for(int i = 0; i < Declare.melody[Declare.color_status].size();i++){
-				Log.v("KMelody", ""+(Integer)Declare.melody[Declare.color_status].get(i));
-			}
-			undo();
-			reDraw();
+			mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
+			mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
+			reDraw();	//重新将所有的曲线都画出来
 		}
+	}
+	
+	private void add_last_edit(){
+		Melody lastMelody = new Melody(Declare.melody[Declare.color_status]);
+		Declare.LastEdit.add(lastMelody);
+		Log.v("Last added", "" + Declare.LastEdit.size() + ", color = " + ((Melody)Declare.LastEdit.getLast()).color);
 	}
 
 	/**
@@ -187,34 +165,15 @@ public class DrawLines extends View implements OnClickListener{
 	public void undo() {
 		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
 		mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
-		// 清空画布，但是如果图片有背景的话，则使用上面的重新初始化的方法，用该方法会将背景清空掉...
-		if (savePath != null && savePath.size() > 0) {
-			// 移除最后一个path,相当于出栈操作
-			savePath.remove(savePath.size() - 1);
-
-			Iterator<DrawPath> iter = savePath.iterator();
-			while (iter.hasNext()) {
-				DrawPath drawPath = iter.next();
-				mCanvas.drawPath(drawPath.path, drawPath.paint);
-			}
-			invalidate();// 刷新
+		Log.v("cannot redo", "" + Declare.LastEdit.size() + ", color = " + ((Melody)Declare.LastEdit.getLast()).color);
+		if(Declare.LastEdit.size()>0){
+			Declare.melody[((Melody)Declare.LastEdit.getLast()).color] = new Melody((Melody)Declare.LastEdit.getLast());
 			
-			/* 在这里保存图片纯粹是为了方便,保存图片进行验证 */
-			String fileUrl = Environment.getExternalStorageDirectory()
-					.toString() + "/android/data/test.png";
-			try {
-				FileOutputStream fos = new FileOutputStream(new File(fileUrl));
-				mBitmap.compress(CompressFormat.PNG, 100, fos);
-				fos.flush();
-				fos.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			reDraw();
+			Declare.LastEdit.removeLast();
 		}
-		tempBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
-				Bitmap.Config.ARGB_8888);
+	
+		
 	}
 
 	/**
@@ -225,37 +184,42 @@ public class DrawLines extends View implements OnClickListener{
 	}
 	
 	private void reDraw(){
-		Path drawPath = new Path();
-	//	mCanvas.setBitmap(mBitmap);
-		int i;
-		Log.v("Here", ""+Declare.melody[Declare.color_status].size());
-		for(i = 0; i < Declare.melody[Declare.color_status].size(); i++){
-			if((Integer)Declare.melody[Declare.color_status].get(i) != 0){
-				Log.v("GET the start point","1");
-				drawPath.moveTo(i*tempo_length, (Integer)Declare.melody[Declare.color_status].get(i));
-				break;		
+		int i,j;
+		Log.v("Here", ""+Declare.color_status);
+		for(i = 0; i < 5; i++){
+			dp = new DrawPath();
+			dp.paint.setColor(Declare.colors[i]);
+			for(j = 0; j < Declare.melody[i].notes.size(); j++){
+				if((Integer)Declare.melody[i].notes.get(j) != 0){
+					Log.v("Draw GET the start point",""+j);
+					note1 = (Integer)Declare.melody[i].notes.get(j);
+					tempoId1 = j;
+					dp.path.moveTo(j*tempo_length, (Integer)Declare.melody[i].notes.get(j));
+					break;
+				}
 			}
-		}
-		i++;
-		int note1, note2, lastnote = 0;
-		for(; i < Declare.melody[Declare.color_status].size(); i++){
-			note1 = (Integer)Declare.melody[Declare.color_status].get(i-1);
-			note2 = (Integer)Declare.melody[Declare.color_status].get(i);
-			if((Integer)Declare.melody[Declare.color_status].get(i) != 0){
-				Log.v("Draw notes","1");
-				lastnote = note2;
-				mCanvas.drawRect(i*tempo_length-5, note2-5, i*tempo_length+5, note2+5, mPaint);
-				drawPath.lineTo(i*tempo_length, note2);
-			//	drawPath.quadTo((i-1)*tempo_length,note1,(float) ((i-0.5)*tempo_length), (note1+note2)/2);
+			j++;
+			int lastnote = 0;
+			for(; j < Declare.melody[i].notes.size(); j++){
+				note = (Integer)Declare.melody[i].notes.get(j);
+				if(note != 0){
+					Log.v("Draw notes","x = " + j*tempo_length + ", y = " + note);
+					lastnote = note;
+					mCanvas.drawRect(j*tempo_length-5, note-5, j*tempo_length+5, note+5, dp.paint);
+			//		dp.path.lineTo(j*tempo_length, note);
+					Log.v("Draw Link dots","x1 = " + (tempoId1)*tempo_length + ", x2 = " + ((j+tempoId1)/2.0*tempo_length));
+					dp.path.quadTo((tempoId1)*tempo_length,note1,(float) ((j+tempoId1)/2.0*tempo_length), (note+note1)/2);
+					note1 = note;
+					tempoId1 = j;
+				}
 			}
+			if(lastnote!=0){
+				dp.path.lineTo(j*tempo_length, lastnote);
+			}
+			mCanvas.drawPath(dp.path, dp.paint);
 		}
-		if(lastnote!=0){
-			drawPath.lineTo(i*tempo_length, lastnote);
-		}
-		mCanvas.drawPath(drawPath, mPaint);
 		invalidate();// 刷新
 	}
-	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		float x = event.getX();
@@ -283,14 +247,12 @@ public class DrawLines extends View implements OnClickListener{
 		}
 		return true;
 	}
-
-	@Override
-	public void onClick(View v) {
-		
-		
+	
+	public void drawPointerLine(float x){
+		Paint pointLinePaint = new Paint();
+//		mCanvas.drawLine(x-2, 0, x+2, Declare.screen_height, mPaint);
+		invalidate();
 	}
 
-	
 
 }
-

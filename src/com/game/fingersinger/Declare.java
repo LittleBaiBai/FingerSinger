@@ -1,6 +1,7 @@
 package com.game.fingersinger;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import android.app.Application;
 
@@ -13,7 +14,8 @@ public class Declare extends Application {
 	public static boolean isSaved;
 	public static SoundManager drawSoundManager;
 	public static SoundManager playSoundManager;
-	public static ArrayList[] melody;
+	public static Melody[] melody;
+	public static LinkedList LastEdit;
 	public static int[] colors;
 	
 	public static float button_menu_vertical;
@@ -39,10 +41,11 @@ public class Declare extends Application {
 		drawSoundManager = new SoundManager();
 		playSoundManager = new SoundManager();
 		
-		melody = new ArrayList[5];
+		melody = new Melody[5];
 		for(int i = 0; i < 5; i++){
-			melody[i] = new ArrayList<Integer>();
+			melody[i] = new Melody(i);
 		}		
-		colors = new int[5];
+		LastEdit = new LinkedList<Melody>();
+		colors = new int[5];	//»­±ÊÑÕÉ«
 	}
 }

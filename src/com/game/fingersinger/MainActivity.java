@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
 	private String dirPath;
 	private String fileName = "";
 	private Dialog onSaveDialog;
-	private View drawView;
+	private DrawLines drawView;
 	private ImageView musicBar, tempoBar;
 	private ImageButton menuBtn, colorBtn, undoBtn;
 	private EditText edit;
@@ -179,13 +179,15 @@ public class MainActivity extends Activity {
 	        }    
 	    }); 
 		
-		undoBtn.setOnClickListener(new OnClickListener() {  
-	        
-	        public void onClick(View v) {  
-	            Log.v("Button","Click on Undo");
-	            	
-	        }    
-	    }); 
+		undoBtn.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				drawView.undo();
+				
+			}
+			
+		});
 	} 
 
 	private void getDirPath() {
