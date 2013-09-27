@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,25 +131,23 @@ public class MainActivity extends Activity {
 		menuBtn.setOnClickListener(new OnClickListener() {  
 	        
 	        public void onClick(View v) {  
-	            Log.v("S","Click on Menu");
+	            Log.v("Button","Click on Menu");
 	            if(Declare.menu_status == 1){
 	            	menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_eraser));
-	            	Declare.drawSoundManager.playSound(Declare.color_status * 3);
 	            	Declare.menu_status = 2;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_eraser, Toast.LENGTH_SHORT).show();
 				}
 				else if (Declare.menu_status == 2) {
-					Declare.drawSoundManager.playSound(Declare.color_status * 3);
-	            	menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_voice));
+					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_voice));
 					Declare.menu_status = 3;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_voice, Toast.LENGTH_SHORT).show();
 				}
-				else {
-					Declare.drawSoundManager.playSound(Declare.color_status * 3);
-	            	menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
+				else {	//既可能是menu_status=3（音量）, 又可能menu_status=4（播放）
+					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 					Declare.menu_status = 1;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_draw, Toast.LENGTH_SHORT).show();
 				}	
+				
 	       }
 	            
 	    }); 
@@ -155,24 +155,35 @@ public class MainActivity extends Activity {
 		colorBtn.setOnClickListener(new OnClickListener() {  
 	        
 	        public void onClick(View v) {  
-	            Log.v("S","Click on Color");
+	            Log.v("Button","Click on Color");
 	            if (Declare.color_status == 0) {
-	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_blue));
+	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_yellow));
 					Declare.color_status = 1;
 	            }
 	            else if(Declare.color_status == 1){
-	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_blue));
+	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_red));
 					Declare.color_status = 2;
 				}
 	            else if (Declare.color_status == 2){
-	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_red));
+	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_blue));
 					Declare.color_status = 3;
 				}
+	            else if (Declare.color_status == 3){
+	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_purple));
+					Declare.color_status = 4;
+				}
 				else {
-	            	//Declare.drawSoundManager.playSound(Declare.color_status * 3);
-					colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_green));
+	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_green));
 					Declare.color_status = 1;
 				}	
+	        }    
+	    }); 
+		
+		undoBtn.setOnClickListener(new OnClickListener() {  
+	        
+	        public void onClick(View v) {  
+	            Log.v("Button","Click on Undo");
+	            	
 	        }    
 	    }); 
 	} 
@@ -307,14 +318,14 @@ public class MainActivity extends Activity {
 		Log.v("debuga", "fileName: " + fileName);
 	
 		//从文件中恢复
-		String res= "";
 		try{
-			FileInputStream fin = new FileInputStream(fileName);
-			int length = fin.available();
-			byte [] buffer = new byte[length];
-			fin.read(buffer);  
-			res = EncodingUtils.getString(buffer, "UTF-8");
-			fin.close(); 
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(dirPath + "/" + fileName));
+			Integer obj3 = (Integer) in.readObject();
+			in.close();
+			//重画画布
+			
+			
+			
 		}
 		catch(Exception e){
 	       e.printStackTrace();
@@ -394,21 +405,9 @@ public class MainActivity extends Activity {
 			Log.v("debug", "mkdir~");
 			Log.v("debug", "f.exists(): " + f.getPath() + " " + f.exists());
 		}
-		File file = new File(dirPath + fileName + ".psong"); 
-		Log.v("debuga", file.getPath());
-		try{
-			FileOutputStream fout = new FileOutputStream(file); 
-			//byte [] bytes = write_str.getBytes();
-			String a = "a";
-			String[] ab = {"a", "b"};
-			
-			Log.v("debuga", "ab.toString()" + ab.toString());
-			byte[] bytes = a.getBytes();
-			fout.write(bytes);
-			fout.close();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dirPath + "/" + fileName + ".psong"));
+		out.writeObject(3);
+		out.close();
 		Declare.isSaved = true;
 		Toast.makeText(MainActivity.this, "Already Saved", Toast.LENGTH_SHORT).show();
 	}
