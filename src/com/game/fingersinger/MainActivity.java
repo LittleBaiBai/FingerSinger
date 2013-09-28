@@ -1,7 +1,5 @@
 package com.game.fingersinger;
 
-import org.apache.http.util.EncodingUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -46,8 +44,8 @@ public class MainActivity extends Activity {
 	private String dirPath;
 	private String fileName = "";
 	private Dialog onSaveDialog;
-	private View drawView;
-	private ImageView musicBar, tempoBar;
+	private View drawView, tempoBar;
+	private ImageView musicBar;
 	private ImageButton menuBtn, colorBtn, undoBtn;
 	private EditText edit;
 	
@@ -60,6 +58,7 @@ public class MainActivity extends Activity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
+        this.setContentView(R.layout.loading);
 		Declare.drawSoundManager.initSounds(getBaseContext(), 1);
 		Declare.playSoundManager.initSounds(getBaseContext(), 5);
         getDirPath();   
@@ -76,6 +75,7 @@ public class MainActivity extends Activity {
 	
 	void initDeclare() {
 		Declare.menu_status = 1;
+		Declare.color_status = 0;
 		
 		Declare.screen_width = getWindowManager().getDefaultDisplay().getWidth();
 		Declare.screen_height = getWindowManager().getDefaultDisplay().getHeight();
@@ -89,8 +89,9 @@ public class MainActivity extends Activity {
 		Declare.scale_start_x_y = (float) (Declare.screen_height/14.1176471);
 		Declare.scale_start_y_x = (float) (Declare.screen_width/200);
 		Declare.scale_length_horizontal = (float) (Declare.screen_width/28.5714286);
-		Declare.note_top_dist = (float) (Declare.screen_height/19.2);
-		Declare.note_button_dist = (float) (Declare.screen_height/1.24352332);
+		Declare.scale_length_vertical = (float) (Declare.screen_width/17.1428571);
+		Declare.note_top_dist = (float) (Declare.screen_height/17.1428571);
+		Declare.note_button_dist = (float) (Declare.screen_height/1.2371134);
 		Declare.note_inner_dist = (float) (Declare.screen_height/25.2631579);
 		
 		Declare.colors[0] = getResources().getColor(R.color.green); 
@@ -112,7 +113,7 @@ public class MainActivity extends Activity {
 		drawLayout.addView(drawView);
 	    
 	    LinearLayout tempoBarLayout = (LinearLayout) findViewById(R.id.tempo_bar);
-	    tempoBar = new ImageView(this);
+	    tempoBar = new ScaleView(this);
 	    tempoBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
 	    tempoBarLayout.addView(tempoBar);    
 	 //   tempoBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_eraser));   
@@ -145,6 +146,7 @@ public class MainActivity extends Activity {
 				else {	//既可能是menu_status=3（音量）, 又可能menu_status=4（播放）
 					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 					Declare.menu_status = 1;
+					undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
 					Toast.makeText(MainActivity.this, R.string.prompt_status_draw, Toast.LENGTH_SHORT).show();
 				}	
 				
@@ -174,7 +176,7 @@ public class MainActivity extends Activity {
 				}
 				else {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_green));
-					Declare.color_status = 1;
+					Declare.color_status = 0;
 				}	
 	        }    
 	    }); 
@@ -183,7 +185,23 @@ public class MainActivity extends Activity {
 	        
 	        public void onClick(View v) {  
 	            Log.v("Button","Click on Undo");
+	            if (Declare.menu_status == 4) {
+	            	//暂停
+	            	undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_resume));
+	            	Declare.menu_status = 5;
+	            }
+	            else if (Declare.menu_status == 5) {
+	            	//播放
+	            	undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
+	            	Declare.menu_status = 4;
+	            	Declare.playSoundManager.playSong(Declare.pointerInMelody);
+	            }
+	            else {
+	            	//undo
 	            	
+	            	
+	            	
+	            }
 	        }    
 	    }); 
 	} 
@@ -201,10 +219,18 @@ public class MainActivity extends Activity {
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
 		switch(item.getItemId()) { 
 		case R.id.action_playCurrent: 
-			setTitle("播放当前"); 
+			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
+			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
+			Toast.makeText(MainActivity.this, R.string.prompt_status_eraser, Toast.LENGTH_SHORT).show();
+			Declare.menu_status = 4;
+			Declare.playSoundManager.playSong(Declare.pointerInMelody);
 			break; 
 		case R.id.action_playWhole: 
-			setTitle("播放整曲"); 
+			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
+			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
+        	Declare.menu_status = 4;
+        	Log.v("playSong", "main,here");
+        	Declare.playSoundManager.playSong(0);
 			break; 
 		case R.id.action_save: 
 			if (fileName == "") {

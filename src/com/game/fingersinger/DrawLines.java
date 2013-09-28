@@ -25,8 +25,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-
-
 public class DrawLines extends View implements OnClickListener{
 	private Bitmap mBitmap, tempBitmap;;
 	private Canvas mCanvas;
@@ -41,7 +39,7 @@ public class DrawLines extends View implements OnClickListener{
 	private static final float TOUCH_TOLERANCE = 3;
 	private boolean candraw = false;
 
-	private int tempo_length = 30;
+	private int tempo_length = 40;
 
 	// 保存Path路径的集合,用List集合来模拟栈
 	private static List<DrawPath> savePath;
@@ -127,7 +125,7 @@ public class DrawLines extends View implements OnClickListener{
 					Declare.melody[Declare.color_status].add(0);	
 				}
 				Declare.melody[Declare.color_status].add(tempoId, note);// 添加了一个音
-				Declare.drawSoundManager.playSound(getIndexOfSound(note) + Declare.color_status * 22);
+				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22);
 				//Log.v("What did you store???", ""+Declare.melody[Declare.color_status].get(tempoId));
 				//Log.v("Actual x and y", "x = " + tempoX + " y = " + note);
 			}
@@ -150,22 +148,6 @@ public class DrawLines extends View implements OnClickListener{
 		
 	}
 
-	private int getIndexOfSound(int note) {
-		if (note < Declare.note_top_dist) {
-			Log.v("SoundIndex", note + " / 21: <" + Declare.note_top_dist);
-			return 21;
-		}
-		else if (note >= Declare.note_button_dist) {
-			Log.v("SoundIndex", note + " / 1: >=" + Declare.note_button_dist);
-			return 1;
-		}
-		else {
-			int temp = 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
-			Log.v("SoundIndex", note + " / " + temp);
-			return 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
-		}
-	}
-	
 	private void touch_up() {
 		if(candraw){
 			mPath.lineTo(mX, mY);

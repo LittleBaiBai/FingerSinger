@@ -19,6 +19,7 @@ public class SoundManager{
 		mSoundPoolMap = new HashMap<Integer, Integer>(); 
 		mAudioManager = (AudioManager) theContext.getSystemService(Context.AUDIO_SERVICE);
 
+		this.addSound(0, R.raw.voice_null);
 		this.addSound(1, R.raw.back_01); 
 		this.addSound(2, R.raw.back_02);  
 		this.addSound(3, R.raw.back_03);  
@@ -156,5 +157,43 @@ public class SoundManager{
 //		mSoundPool.play((Integer)mSoundPoolMap.get(index),streamVolume,streamVolume,1,-1,1f);
 //	}
 	
+	public void playSong(int start) {
+		// TODO Auto-generated method stub
+		int end = 0;
+		for (int i = 0; i < 5; i++) {
+			int temp = (Integer)Declare.melodyStopAt[i].get(Declare.melodyStopAt[i].size() - 1);
+			if (temp > end) {
+				end = temp;
+			}
+		}
+		end = 5;
+		Log.v("playSong", "before for loop£º" + start + "/" + end);
+		for (int i = start; i < end; i++) {
+			for (int j = 0; j < 5; j++) {
+				int note = (Integer)Declare.melody[j].get(i);
+				Log.v("playSong", start + "/" + end + " note: " + note);
+				if (Declare.menu_status == 5) {
+					break;
+				}
+				if (note == 0) {
+					Declare.playSoundManager.playSound(0);
+				}
+				else {
+					Declare.playSoundManager.playSound(Declare.getIndexOfSound(note) + 22 * j);
+				}
+			}	
+			if (Declare.menu_status == 5) {
+				break;
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+	}
 
 }
