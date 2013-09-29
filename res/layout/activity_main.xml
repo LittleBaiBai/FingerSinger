@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_layout"
     android:layout_width="fill_parent"
@@ -17,7 +17,7 @@
     <LinearLayout
         android:id="@+id/view_draw"
         android:layout_width="750dp"
-        android:layout_height="430dp"
+        android:layout_height="440dp"
         android:layout_above="@+id/tempo_bar"
         android:layout_alignParentRight="true"
         android:layout_toLeftOf="@+id/button_undo"
@@ -27,13 +27,65 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/music_bar"
-        android:layout_width="50dp"
-        android:layout_height="430dp"
-        android:layout_alignBottom="@+id/view_draw"
-        android:layout_alignParentLeft="true"
-        android:orientation="horizontal" >
-
+        android:id="@+id/voice_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+        
+        <SeekBar
+		    android:id="@+id/seekBar1"
+		    android:background="@color/green"
+		    android:max="100"
+		    android:progress="80"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="70dp"
+		    android:layout_marginLeft="70dp"
+		    android:layout_marginTop="30dp" />
+	
+		<SeekBar
+		    android:id="@+id/seekBar2"
+		    android:background="@color/yellow"
+		    android:max="100"
+		    android:progress="80"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="70dp"
+		    android:layout_marginLeft="70dp"
+		    android:layout_marginTop="10dp"/>
+			
+		<SeekBar
+		    android:id="@+id/seekBar3"
+		    android:background="@color/red"
+		    android:max="100"
+		    android:progress="80"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="70dp"
+		    android:layout_marginLeft="70dp"
+		    android:layout_marginTop="10dp" />
+			
+		<SeekBar
+		    android:id="@+id/seekBar4"
+		    android:background="@color/blue"
+		    android:max="100"
+		    android:progress="80"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="70dp"
+		    android:layout_marginLeft="70dp"
+		    android:layout_marginTop="10dp" />
+	
+		<SeekBar
+		    android:id="@+id/seekBar5"
+		    android:background="@color/purple"
+		    android:max="100"
+		    android:progress="80"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginRight="70dp"
+		    android:layout_marginLeft="70dp"
+		    android:layout_marginTop="10dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -43,8 +95,8 @@
         android:layout_alignLeft="@+id/view_draw"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/button_undo"
+        android:layout_alignTop="@+id/button_color" 
         android:orientation="horizontal" >
-
     </LinearLayout>
 
     <ImageButton
@@ -65,7 +117,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/music_bar"
         android:src="@drawable/button_status_draw" 
         android:background="#00000000"
         android:contentDescription="@string/button_menu">
@@ -92,5 +143,17 @@
 	    android:inputType="text"
 	    android:visibility="gone">  
 	</EditText>  
-
+		
+	<ImageView
+        android:id="@+id/pointer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+		android:layout_alignLeft="@+id/tempo_bar"
+	    android:background="#00000000"
+        android:src="@drawable/pointer_unpress" 
+        android:contentDescription="@string/button_pointer"/>
+    
+    
+   
 </RelativeLayout>

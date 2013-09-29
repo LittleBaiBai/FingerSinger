@@ -1,6 +1,6 @@
 package com.game.fingersinger;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import android.app.Application;
 import android.util.Log;
@@ -14,11 +14,12 @@ public class Declare extends Application {
 	public static boolean isSaved;
 	public static SoundManager drawSoundManager;
 	public static SoundManager playSoundManager;
-	public static ArrayList[] melody;
-	public static ArrayList[] melodyStopAt;
 	public static int pointerInScreen;
 	public static int pointerInMelody;
+	public static Melody[] melody;
+	public static LinkedList<Melody> LastEdit;
 	public static int[] colors;
+	public static int tempo_length;
 	
 	public static float button_menu_vertical;
 	public static float button_menu_horizontal;
@@ -33,12 +34,17 @@ public class Declare extends Application {
 	public static float note_top_dist;
 	public static float note_button_dist;
 	public static float note_inner_dist;
+	public static float pointer_pressed;
+	public static float pointer_unpress;
+	public static float pointer_stick;
+	public static float pointer_dx;
 	
 	public Declare(){
 		menu_status = 1;
 		color_status = 1;
 		undo_status = 1;
 		isSaved = true;
+		tempo_length = 40;
 		
 		drawSoundManager = new SoundManager();
 		playSoundManager = new SoundManager();
@@ -46,30 +52,31 @@ public class Declare extends Application {
 		pointerInScreen = 0;
 		pointerInMelody = 0;
 		
-		melody = new ArrayList[5];
-		melodyStopAt = new ArrayList[5];
-		for(int i = 0; i < 5; i++){
-			melody[i] = new ArrayList<Integer>();
-			melodyStopAt[i] = new ArrayList<Integer>();
-			melodyStopAt[i].add(0);
+		melody = new Melody[5];
+		for (int i = 0; i < 5; i++) {
+			melody[i] = new Melody(i);
 		}		
-		colors = new int[5];
+		LastEdit = new LinkedList<Melody>();
+		colors = new int[5];	//»­±ÊÑÕÉ«
 	}
 	
 	public static int getIndexOfSound(int note) {
-		if (note < Declare.note_top_dist) {
-			Log.v("SoundIndex", note + " / 21: <" + Declare.note_top_dist);
-			return 21;
-		}
-		else if (note >= Declare.note_button_dist) {
-			Log.v("SoundIndex", note + " / 1: >=" + Declare.note_button_dist);
-			return 1;
-		}
-		else {
-			int temp = 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
-			Log.v("SoundIndex", note + " / " + temp);
-			return 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
-		}
+//		if (note < Declare.note_top_dist) {
+//			Log.v("SoundIndex", note + " / 21: <" + Declare.note_top_dist);
+//			return 21;
+//		}
+//		else if (note >= Declare.note_button_dist) {
+//			Log.v("SoundIndex", note + " / 1: >=" + Declare.note_button_dist);
+//			return 1;
+//		}
+//		else {
+//			int temp = 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
+//			Log.v("SoundIndex", note + " / " + temp);
+//			return 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);
+//		}
+		Log.v("note", "Declare.note_inner_dist: " + Declare.note_inner_dist);
+		Log.v("note", "note/voice: " + note + "/" + (22 - (int)(note / Declare.note_inner_dist)));
+		return 22 - (int)(note / Declare.note_inner_dist);
 	}
 	
 }

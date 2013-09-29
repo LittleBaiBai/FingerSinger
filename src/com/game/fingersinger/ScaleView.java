@@ -5,12 +5,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
-
 public class ScaleView extends View{
-	private Canvas mCanvas;
+	//private Canvas mCanvas;
 	private Paint mPaint;
 	
 	public ScaleView(Context context, AttributeSet attrs) {
@@ -20,9 +18,10 @@ public class ScaleView extends View{
 	public ScaleView(Context context) {
 		super(context);
 		
-		mCanvas = new Canvas();
+		//mCanvas = new Canvas();
 		mPaint = new Paint();
 		mPaint.setColor(Color.LTGRAY);// »­±ÊÑÕÉ«
+		
 	}
 
 	@Override
@@ -30,14 +29,13 @@ public class ScaleView extends View{
 		// TODO Auto-generated method stub
 		super.onDraw(canvas);
 		
-		float x = Declare.button_menu_horizontal;
+		float x = Declare.tempo_length;
 		while (x < Declare.screen_width - Declare.button_color_horizontal) {
-			Log.v("scale_before", "" + x);
-			canvas.drawLine(x, Declare.scale_start_x_y, x, Declare.scale_start_x_y + Declare.scale_length_vertical, mPaint);
-			x += 40;
-			Log.v("scale_after", "" + x);
+			//canvas.drawLine(x, Declare.scale_start_x_y, x, Declare.scale_start_x_y + Declare.scale_length_vertical, Declare.scale_start_x_y + Declare.scale_length_vertical);
+			canvas.drawRect(x, Declare.scale_start_x_y, x + 3, Declare.scale_start_x_y + Declare.scale_length_vertical, mPaint);
+			x += Declare.tempo_length;
 		}
+		
 	}
-	
 	
 }

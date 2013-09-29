@@ -30,23 +30,27 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ImageView;
 import android.widget.AdapterView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 
 public class MainActivity extends Activity {
 
 	private String dirPath;
 	private String fileName = "";
 	private Dialog onSaveDialog;
-	private View drawView, tempoBar;
-	private ImageView musicBar;
+
+	private DrawLines drawView;
+	private ScaleView tempoBar;
+
 	private ImageButton menuBtn, colorBtn, undoBtn;
+	private ImageView pointer;
 	private EditText edit;
 	
 	@Override
@@ -80,19 +84,19 @@ public class MainActivity extends Activity {
 		Declare.screen_width = getWindowManager().getDefaultDisplay().getWidth();
 		Declare.screen_height = getWindowManager().getDefaultDisplay().getHeight();
 		
-		Declare.button_menu_vertical = (float) (Declare.screen_height/6.85714286);
-		Declare.button_menu_horizontal = (float) (Declare.screen_width/11.4285714);
-		Declare.button_color_vertical = (float) (Declare.screen_height/12.3076923);
-		Declare.button_color_horizontal = (float) (Declare.screen_width/10.9589041);
-		Declare.button_undo_vertical = (float) (Declare.screen_height/9.75609756);
-		Declare.button_undo_horizontal = (float) (Declare.screen_width/12.9032258);
-		Declare.scale_start_x_y = (float) (Declare.screen_height/14.1176471);
-		Declare.scale_start_y_x = (float) (Declare.screen_width/200);
-		Declare.scale_length_horizontal = (float) (Declare.screen_width/28.5714286);
-		Declare.scale_length_vertical = (float) (Declare.screen_width/17.1428571);
-		Declare.note_top_dist = (float) (Declare.screen_height/17.1428571);
-		Declare.note_button_dist = (float) (Declare.screen_height/1.2371134);
-		Declare.note_inner_dist = (float) (Declare.screen_height/25.2631579);
+		Declare.button_menu_vertical = (float) (Declare.screen_height * 70 / 480);
+		Declare.button_menu_horizontal = (float) (Declare.screen_width * 70 / 800);
+		Declare.button_color_vertical = (float) (Declare.screen_height * 45 / 480);
+		Declare.button_color_horizontal = (float) (Declare.screen_width * 73 / 800);
+		Declare.button_undo_vertical = (float) (Declare.screen_height * 41 / 480);
+		Declare.button_undo_horizontal = (float) (Declare.screen_width * 62 / 800);
+		Declare.scale_start_x_y = (float) (Declare.screen_height * 11 / 480);
+		Declare.scale_length_vertical = (float) (Declare.screen_height * 28 / 480);
+		Declare.pointer_pressed = (float) (Declare.screen_width * 49 / 800);
+		Declare.pointer_unpress = (float) (Declare.screen_width * 42 / 800);
+		Declare.pointer_stick = (float) (Declare.screen_width * 17 / 800);
+		Declare.pointer_dx = (float) (Declare.screen_width * 9 / 800);
+		Declare.note_inner_dist = (float) (Declare.screen_height * 20 / 480);
 		
 		Declare.colors[0] = getResources().getColor(R.color.green); 
 		Declare.colors[1] = getResources().getColor(R.color.yellow);
@@ -105,30 +109,28 @@ public class MainActivity extends Activity {
 		
 		setContentView(R.layout.activity_main);
 		//LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
+
+		LinearLayout tempoBarLayout = (LinearLayout) findViewById(R.id.tempo_bar);
+	    tempoBar = new ScaleView(this);
+	    //tempoBar.setBackgroundColor(getResources().getColor(R.color.blue));
+	    tempoBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
+	    tempoBarLayout.addView(tempoBar);    
+	 //   tempoBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_eraser));   
+
 		LinearLayout drawLayout = (LinearLayout) findViewById(R.id.view_draw);
 		//drawLayout.setLayoutParams(new LayoutParams())
 		drawView = new DrawLines(this);
 		drawView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));  
 		drawLayout.addView(drawView);
+
+	    LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+	    voiceBarLayout.setVisibility(View.GONE);
 	    
-	    LinearLayout tempoBarLayout = (LinearLayout) findViewById(R.id.tempo_bar);
-	    tempoBar = new ScaleView(this);
-	    tempoBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
-	    tempoBarLayout.addView(tempoBar);    
-	 //   tempoBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_eraser));   
-	    
-	    LinearLayout musicBarLayout = (LinearLayout) findViewById(R.id.music_bar);
-	    musicBar = new ImageView(this);
-	    musicBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
-	    musicBarLayout.addView(musicBar);    
-	//     musicBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_eraser));   
-		
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
+		pointer = (ImageView)findViewById(R.id.pointer);
 		
-	    //设置按钮的监听 		
 		menuBtn.setOnClickListener(new OnClickListener() {  
 	        
 	        public void onClick(View v) {  
@@ -142,8 +144,15 @@ public class MainActivity extends Activity {
 					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_voice));
 					Declare.menu_status = 3;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_voice, Toast.LENGTH_SHORT).show();
+
+				    LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+				    voiceBarLayout.setVisibility(View.VISIBLE);
+				    
+				    changeVoice();
 				}
 				else {	//既可能是menu_status=3（音量）, 又可能menu_status=4（播放）
+					LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+				    voiceBarLayout.setVisibility(View.GONE);
 					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 					Declare.menu_status = 1;
 					undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
@@ -151,6 +160,21 @@ public class MainActivity extends Activity {
 				}	
 				
 	       }
+
+			private void changeVoice() {
+				// TODO Auto-generated method stub
+				SeekBar seek1 = (SeekBar)findViewById(R.id.seekBar1);
+				SeekBar seek2 = (SeekBar)findViewById(R.id.seekBar2);
+				SeekBar seek3 = (SeekBar)findViewById(R.id.seekBar3);
+				SeekBar seek4 = (SeekBar)findViewById(R.id.seekBar4);
+				SeekBar seek5 = (SeekBar)findViewById(R.id.seekBar5);
+				
+				seek1.setOnSeekBarChangeListener(new ProgressSeekListener(seek1, 1));
+				seek2.setOnSeekBarChangeListener(new ProgressSeekListener(seek2, 2));
+				seek3.setOnSeekBarChangeListener(new ProgressSeekListener(seek3, 3));
+				seek4.setOnSeekBarChangeListener(new ProgressSeekListener(seek4, 4));
+				seek5.setOnSeekBarChangeListener(new ProgressSeekListener(seek5, 5));
+			}
 	            
 	    }); 
 		
@@ -194,28 +218,31 @@ public class MainActivity extends Activity {
 	            	//播放
 	            	undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
 	            	Declare.menu_status = 4;
-	            	Declare.playSoundManager.playSong(Declare.pointerInMelody);
+	            	playSong(Declare.pointerInMelody);
 	            }
 	            else {
-	            	//undo
-	            	
-	            	
-	            	
+	            	drawView.undo();	            	
 	            }
 	        }    
 	    }); 
+
+		pointer.setOnTouchListener(new PointerListener(this, pointer));
+		
 	} 
 
 	private void getDirPath() {
 		if (Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
-			this.dirPath = Environment.getExternalStorageDirectory().getPath() + "/PhotoSong/history/";
+			this.dirPath = Environment.getExternalStorageDirectory().getPath() + "/FingerSinger/history/";
 		}
 		else 
-			this.dirPath = Environment.getRootDirectory().getPath() + "/PhotoSong/history/";
+			this.dirPath = Environment.getRootDirectory().getPath() + "/FingerSinger/history/";
 	}	
 	
 	public boolean onOptionsItemSelected(MenuItem item) {  
 	
+		LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+	    voiceBarLayout.setVisibility(View.GONE);
+	    
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
 		switch(item.getItemId()) { 
 		case R.id.action_playCurrent: 
@@ -223,14 +250,15 @@ public class MainActivity extends Activity {
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
 			Toast.makeText(MainActivity.this, R.string.prompt_status_eraser, Toast.LENGTH_SHORT).show();
 			Declare.menu_status = 4;
-			Declare.playSoundManager.playSong(Declare.pointerInMelody);
+			playSong(Declare.pointerInMelody);
+			
 			break; 
 		case R.id.action_playWhole: 
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
         	Declare.menu_status = 4;
         	Log.v("playSong", "main,here");
-        	Declare.playSoundManager.playSong(0);
+        	playSong(0);
 			break; 
 		case R.id.action_save: 
 			if (fileName == "") {
@@ -238,18 +266,18 @@ public class MainActivity extends Activity {
 				edit = new EditText(MainActivity.this);
 				edit.setSingleLine();
 				edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
-				//edit.setImeOptions(EditorInfo.IME_ACTION_DONE);
+			
 				//提醒用户做保存的事情的一个框
 				onSaveDialog = new AlertDialog.Builder(MainActivity.this).setTitle("保存")
-						.setMessage("想一个靠谱的名字吧，不要包括“.”＝ ＝、").setView(edit)
+					.setMessage("想一个靠谱的名字吧，不要包括“.”＝ ＝、").setView(edit)
 					//设置按钮
 					.setPositiveButton("保存", new DialogInterface.OnClickListener(){  
 						public void onClick(DialogInterface dialog, int which) {
 							fileName = edit.getText().toString();
-							Log.v("debuga", "fileName: " + fileName);
+							//Log.v("debuga", "fileName: " + fileName);
 							
 							if (new File(dirPath + "/" + fileName + ".psong").exists()) {
-								Log.v("debuga", "exists()");
+								Log.v("debuga", "file exists()");
 								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
 									.setTitle("保存失败").setMessage("有重名")
 									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
@@ -271,14 +299,14 @@ public class MainActivity extends Activity {
 								
 								fileName = "";
 								//清空画布要做的事！！
-								
-								
-								
-								
+								Log.v("clearCanvas", "inside");
+								drawView.clearCanvas();
+															
 							}
 						}  
 					})
 					.setCancelable(true).create();
+				Log.v("clearCanvas", "outof");
 				onSaveDialog.show();
 			}
 
@@ -292,7 +320,8 @@ public class MainActivity extends Activity {
 				}
 				fileName = "";
 				//清空画布要做的事！！
-				
+				Log.v("clearCanvas", "else");
+				drawView.clearCanvas();
 				
 			}
 			break; 
@@ -306,7 +335,8 @@ public class MainActivity extends Activity {
 						public void onClick(DialogInterface dialog, int which) {
 							onSaveDialog.show();
 							Declare.isSaved = true;
-							loadFromHistory();
+							//调文件系统，找出文件
+							showFileList();
 						}  
 					})
 					.setNegativeButton("不保存", new DialogInterface.OnClickListener() {
@@ -314,21 +344,23 @@ public class MainActivity extends Activity {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							Declare.isSaved = true;
-							loadFromHistory();
+							//调文件系统，找出文件
+							showFileList();
 						}
 					})
 					.setCancelable(true).create();
 				isSaveDialog.show();
 			}
 			else {
-				loadFromHistory();
+				//调文件系统，找出文件
+				showFileList();
 			}
 			break; 
 		case R.id.action_import: 
-			Toast.makeText(MainActivity.this, "此功能尚未完成", Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break; 
 		case R.id.action_export:
-			Toast.makeText(MainActivity.this, "此功能尚未完成", Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break;
 		default:
 			Log.v("debuga", "menu_id: " + item.getItemId());
@@ -337,20 +369,16 @@ public class MainActivity extends Activity {
 		return true;  
 	}  
 
-	protected void loadFromHistory() {
-		//调文件系统，找出文件
-		showFileList();
-
-		Log.v("debuga", "fileName: " + fileName);
-	
-		//从文件中恢复
+	protected void loadFromHistory() {		
 		try{
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(dirPath + "/" + fileName));
-			Integer obj3 = (Integer) in.readObject();
+			//从文件中恢复
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(dirPath + "/" + fileName + ".psong"));
+			Declare.melody = (Melody[])in.readObject();
 			in.close();
+			
 			//重画画布
-			
-			
+			drawView.clearCanvas();
+			drawView.reDraw();
 			
 		}
 		catch(Exception e){
@@ -417,7 +445,8 @@ public class MainActivity extends Activity {
 				@SuppressWarnings("unchecked")
 				HashMap<String, String> tem = (HashMap<String, String>)lv.getItemAtPosition(arg2);
 				fileName = tem.get("name");
-				Toast.makeText(MainActivity.this, "Click" + fileName, 200).show();
+				//Toast.makeText(MainActivity.this, "Click" + fileName, 200).show();
+				loadFromHistory();
 				lv.setVisibility(View.GONE);
 			}
 		});
@@ -427,15 +456,62 @@ public class MainActivity extends Activity {
 	private void onSave() throws IOException {
 		File f = new File(this.dirPath); //strPath为路径
 		if (!f.exists()) {
-			f.mkdirs(); //建立文件夹 
+			f.mkdirs();	//建立文件夹 
 			Log.v("debug", "mkdir~");
 			Log.v("debug", "f.exists(): " + f.getPath() + " " + f.exists());
 		}
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dirPath + "/" + fileName + ".psong"));
-		out.writeObject(3);
+		out.writeObject(Declare.melody);
 		out.close();
 		Declare.isSaved = true;
 		Toast.makeText(MainActivity.this, "Already Saved", Toast.LENGTH_SHORT).show();
 	}
+	
+	public void playSong(int start) {
+		// TODO Auto-generated method stub
+		int end = 0;
+		for (int i = 0; i < 5; i++) {
+			Log.v("playSong", "color: " + i + " size:" + Declare.melody[i].stops.size());
+			if (Declare.melody[i].stops.size() == 0) continue;
+			int temp = Declare.melody[i].stops.get(Declare.melody[i].stops.size() - 1) - 1;
+			if (temp > end) {
+				end = temp;
+			}
+		}
+		Log.v("playSong", "before for loop：" + start + "/" + end);
+		for (int i = start; i < end; i++) {
+			for (int j = 0; j < 5; j++) {
+				if (Declare.melody[j].notes.isEmpty()) continue;
+				if (Declare.melody[j].stops.get(Declare.melody[j].stops.size() - 1) - 1 < i) continue;
+				int note = Declare.melody[j].notes.get(i);
+				Log.v("playSong", start + "/" + end + " note: " + note);
+				if (Declare.menu_status == 5) {
+					break;
+				}
+				if (note == 0) {
+					Declare.playSoundManager.playSound(0, Declare.melody[j].voice);
+				}
+				else {
+					Declare.playSoundManager.playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
+				}
+			}	
+			if (Declare.menu_status == 5) {
+				break;
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
+		undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
+		Declare.menu_status = 1;
+		Toast.makeText(MainActivity.this, R.string.prompt_stop_play, Toast.LENGTH_SHORT).show();
+		
+	}
+
 	
 }

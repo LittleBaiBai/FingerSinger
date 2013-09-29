@@ -15,7 +15,9 @@
     <string name="button_menu">button used for change status</string>
     <string name="button_undo">button used for undo</string>
     <string name="prompt_status_eraser">现在点击想要去掉的曲线即可整条删除</string>
-    <string name="prompt_status_voice">点击线条，然后可调整该线音量</string>
+    <string name="prompt_status_voice">调整对应颜色的线条音量</string>
     <string name="prompt_status_draw">开始在屏幕上作画吧！右下角色块选择“音&amp;色”~</string>
+    <string name="prompt_stop_play">播放完毕</string>
+    <string name="button_pointer">used for move canvas and point out the start of the current play</string>
 
 </resources>

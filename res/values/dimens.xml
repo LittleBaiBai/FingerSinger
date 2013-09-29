@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="scale_tempo">30dp</dimen>
+    <dimen name="pointer_bottom">2dp</dimen>
     <dimen name="scale_note">15dp</dimen>
 
 </resources>

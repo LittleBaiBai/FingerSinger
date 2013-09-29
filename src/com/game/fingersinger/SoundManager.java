@@ -1,22 +1,21 @@
 package com.game.fingersinger;
 
-import java.util.HashMap;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 public class SoundManager{
 	private SoundPool mSoundPool;
-	private HashMap mSoundPoolMap;
+	private SparseIntArray mSoundPoolMap;
 	private Context mContext;
 	private AudioManager mAudioManager;
 	
 	public void initSounds(Context theContext, int permit){
 		mContext = theContext;
 		mSoundPool = new SoundPool(permit, AudioManager.STREAM_MUSIC, 0);
-		mSoundPoolMap = new HashMap<Integer, Integer>(); 
+		mSoundPoolMap = new SparseIntArray(); 
 		mAudioManager = (AudioManager) theContext.getSystemService(Context.AUDIO_SERVICE);
 
 		this.addSound(0, R.raw.voice_null);
@@ -139,61 +138,22 @@ public class SoundManager{
 	
 	public void addSound(int index, int SoundID)
 	{
-		Log.v("addSound", "index:" + index + " SoundID:" + SoundID);
 		mSoundPoolMap.put(index, mSoundPool.load(mContext, SoundID, 1));
 	}
 	
-	public void playSound(int index)
+	public void playSound(int index, float voice)
 	{
+		Log.v("playSound", "index:" + index + " voice:" + voice);
 		float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-		streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-		mSoundPool.play((Integer)mSoundPoolMap.get(index), streamVolume, streamVolume, 1, 0, 1f);
+		//streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		mSoundPool.play(mSoundPoolMap.get(index), streamVolume * voice, streamVolume * voice, 1, 0, 1f);
 	}
 	
 //	public void playLoopedSound(int index)
 //	{
 //		float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 //		streamVolume = streamVolume/mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-//		mSoundPool.play((Integer)mSoundPoolMap.get(index),streamVolume,streamVolume,1,-1,1f);
+//		mSoundPool.play(mSoundPoolMap.get(index),streamVolume,streamVolume,1,-1,1f);
 //	}
-	
-	public void playSong(int start) {
-		// TODO Auto-generated method stub
-		int end = 0;
-		for (int i = 0; i < 5; i++) {
-			int temp = (Integer)Declare.melodyStopAt[i].get(Declare.melodyStopAt[i].size() - 1);
-			if (temp > end) {
-				end = temp;
-			}
-		}
-		end = 5;
-		Log.v("playSong", "before for loop£º" + start + "/" + end);
-		for (int i = start; i < end; i++) {
-			for (int j = 0; j < 5; j++) {
-				int note = (Integer)Declare.melody[j].get(i);
-				Log.v("playSong", start + "/" + end + " note: " + note);
-				if (Declare.menu_status == 5) {
-					break;
-				}
-				if (note == 0) {
-					Declare.playSoundManager.playSound(0);
-				}
-				else {
-					Declare.playSoundManager.playSound(Declare.getIndexOfSound(note) + 22 * j);
-				}
-			}	
-			if (Declare.menu_status == 5) {
-				break;
-			}
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		
-	}
 
 }
