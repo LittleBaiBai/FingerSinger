@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.util.Log;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.annotation.SuppressLint;
@@ -37,17 +38,20 @@ import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
 public class MainActivity extends Activity {
 
-	private String dirPath;
+	private String historyPath, audioPath, picturePath, tempPath;
 	private String fileName = "";
+	private String tempName = "";
 	private Dialog onSaveDialog;
 
 	private DrawLines drawView;
 	private ScaleView tempoBar;
+	private MediaRecorder mediaRecord;
 
 	private ImageButton menuBtn, colorBtn, undoBtn;
 	private ImageView pointer;
@@ -77,7 +81,7 @@ public class MainActivity extends Activity {
 		return true;
 	}
 	
-	void initDeclare() {
+	private void initDeclare() {
 		Declare.menu_status = 1;
 		Declare.color_status = 0;
 		
@@ -105,7 +109,7 @@ public class MainActivity extends Activity {
 		Declare.colors[4] = getResources().getColor(R.color.purple);
 	}
 	
-	void initView() {
+	private void initView() {
 		
 		setContentView(R.layout.activity_main);
 		//LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -169,11 +173,11 @@ public class MainActivity extends Activity {
 				SeekBar seek4 = (SeekBar)findViewById(R.id.seekBar4);
 				SeekBar seek5 = (SeekBar)findViewById(R.id.seekBar5);
 				
-				seek1.setOnSeekBarChangeListener(new ProgressSeekListener(seek1, 1));
-				seek2.setOnSeekBarChangeListener(new ProgressSeekListener(seek2, 2));
-				seek3.setOnSeekBarChangeListener(new ProgressSeekListener(seek3, 3));
-				seek4.setOnSeekBarChangeListener(new ProgressSeekListener(seek4, 4));
-				seek5.setOnSeekBarChangeListener(new ProgressSeekListener(seek5, 5));
+				seek1.setOnSeekBarChangeListener(new ProgressSeekListener(seek1, 0));
+				seek2.setOnSeekBarChangeListener(new ProgressSeekListener(seek2, 1));
+				seek3.setOnSeekBarChangeListener(new ProgressSeekListener(seek3, 2));
+				seek4.setOnSeekBarChangeListener(new ProgressSeekListener(seek4, 3));
+				seek5.setOnSeekBarChangeListener(new ProgressSeekListener(seek5, 4));
 			}
 	            
 	    }); 
@@ -231,11 +235,30 @@ public class MainActivity extends Activity {
 	} 
 
 	private void getDirPath() {
+		String dirPath;
 		if (Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
-			this.dirPath = Environment.getExternalStorageDirectory().getPath() + "/FingerSinger/history/";
+			dirPath = Environment.getExternalStorageDirectory().getPath();
 		}
 		else 
-			this.dirPath = Environment.getRootDirectory().getPath() + "/FingerSinger/history/";
+			dirPath = Environment.getRootDirectory().getPath() + "/FingerSinger/history/";
+		historyPath = dirPath + "/FingerSinger/history/";
+		audioPath = dirPath + "/FingerSinger/output_audio/";
+		picturePath = dirPath + "/FingerSinger/output_picture";
+		
+		File f1 = new File(this.historyPath); //strPath为路径
+		if (!f1.exists()) {
+			f1.mkdirs();	//建立文件夹 
+		}
+		
+		File f2 = new File(this.audioPath); //strPath为路径
+		if (!f2.exists()) {
+			f2.mkdirs();	//建立文件夹 
+		}
+		
+		File f3 = new File(this.picturePath); //strPath为路径
+		if (!f3.exists()) {
+			f3.mkdirs();	//建立文件夹
+		}
 	}	
 	
 	public boolean onOptionsItemSelected(MenuItem item) {  
@@ -246,21 +269,25 @@ public class MainActivity extends Activity {
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
 		switch(item.getItemId()) { 
 		case R.id.action_playCurrent: 
+			item.setEnabled(false);
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
 			Toast.makeText(MainActivity.this, R.string.prompt_status_eraser, Toast.LENGTH_SHORT).show();
 			Declare.menu_status = 4;
 			playSong(Declare.pointerInMelody);
-			
+			item.setEnabled(true);
 			break; 
 		case R.id.action_playWhole: 
+			item.setEnabled(false);
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
         	Declare.menu_status = 4;
         	Log.v("playSong", "main,here");
         	playSong(0);
+    		item.setEnabled(true);
 			break; 
 		case R.id.action_save: 
+			if (Declare.isSaved == true) break;
 			if (fileName == "") {
 				//edit = (EditText)findViewById(R.id.name_editor);
 				edit = new EditText(MainActivity.this);
@@ -269,14 +296,14 @@ public class MainActivity extends Activity {
 			
 				//提醒用户做保存的事情的一个框
 				onSaveDialog = new AlertDialog.Builder(MainActivity.this).setTitle("保存")
-					.setMessage("想一个靠谱的名字吧，不要包括“.”＝ ＝、").setView(edit)
+					.setMessage("想一个靠谱的名字吧＝ ＝、").setView(edit)
 					//设置按钮
 					.setPositiveButton("保存", new DialogInterface.OnClickListener(){  
 						public void onClick(DialogInterface dialog, int which) {
 							fileName = edit.getText().toString();
 							//Log.v("debuga", "fileName: " + fileName);
 							
-							if (new File(dirPath + "/" + fileName + ".psong").exists()) {
+							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
 								Log.v("debuga", "file exists()");
 								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
 									.setTitle("保存失败").setMessage("有重名")
@@ -296,11 +323,11 @@ public class MainActivity extends Activity {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-								
-								fileName = "";
-								//清空画布要做的事！！
-								Log.v("clearCanvas", "inside");
-								drawView.clearCanvas();
+//								
+//								fileName = "";
+//								//清空画布要做的事！！
+//								Log.v("clearCanvas", "inside");
+//								drawView.clearCanvas();
 															
 							}
 						}  
@@ -318,10 +345,10 @@ public class MainActivity extends Activity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				fileName = "";
-				//清空画布要做的事！！
-				Log.v("clearCanvas", "else");
-				drawView.clearCanvas();
+//				fileName = "";
+//				//清空画布要做的事！！
+//				Log.v("clearCanvas", "else");
+//				drawView.clearCanvas();
 				
 			}
 			break; 
@@ -360,19 +387,97 @@ public class MainActivity extends Activity {
 			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break; 
 		case R.id.action_export:
+			item.getSubMenu();
+			break;
+		case R.id.action_export_audio:
+			if (fileName == "") {
+				//edit = (EditText)findViewById(R.id.name_editor);
+				edit = new EditText(MainActivity.this);
+				edit.setSingleLine();
+				edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
+			
+				//提醒用户做保存的事情的一个框
+				Dialog onNameDialog = new AlertDialog.Builder(MainActivity.this).setTitle("得先保存")
+					.setMessage("想一个靠谱的名字吧＝ ＝、").setView(edit)
+					//设置按钮
+					.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
+						public void onClick(DialogInterface dialog, int which) {
+							fileName = edit.getText().toString();
+							//Log.v("debuga", "fileName: " + fileName);
+							
+							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
+								Log.v("debuga", "file exists()");
+								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
+									.setTitle("保存失败").setMessage("有重名")
+									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
+										public void onClick(DialogInterface dialog, int which) {
+											//不做任何操作
+											edit.setVisibility(View.GONE);
+										}
+									}).create();
+								temp.show();
+							}
+							else {
+								//保存应该做的事
+								try {
+									onSave();
+									recordSong();
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								
+								fileName = "";
+								//清空画布要做的事！！
+								drawView.clearCanvas();
+															
+							}
+						}  
+					})
+					.setCancelable(true).create();
+				onNameDialog.show();
+			}
+
+			break;
+		case R.id.action_export_picture:
 			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break;
 		default:
 			Log.v("debuga", "menu_id: " + item.getItemId());
 			break;
-		}  
+		} 
 		return true;  
 	}  
 
-	protected void loadFromHistory() {		
+	
+	private void recordSong() {
+		mediaRecord = new MediaRecorder();
+		//mediaRecord.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	//设置音频源
+		mediaRecord.setAudioSource(MediaRecorder.AudioSource.DEFAULT);	//设置音频源
+		mediaRecord.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);	//设置音频输出格式
+		mediaRecord.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);	//设置音频编码
+		
+		mediaRecord.setOutputFile(audioPath + "/" + fileName + ".mp3");
+		try {
+			mediaRecord.prepare();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		mediaRecord.start();
+		this.playSong(0);
+		mediaRecord.stop();
+		mediaRecord.release();
+	}
+
+	
+	private void loadFromHistory() {		
 		try{
 			//从文件中恢复
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(dirPath + "/" + fileName + ".psong"));
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(historyPath + "/" + fileName + ".psong"));
 			Declare.melody = (Melody[])in.readObject();
 			in.close();
 			
@@ -392,7 +497,7 @@ public class MainActivity extends Activity {
 		ListView listview = (ListView)this.findViewById(R.id.list_view);
 		List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
 		listview.setBackgroundColor(Color.GRAY);
-		File f = new File(this.dirPath); //strPath为路径
+		File f = new File(this.historyPath); //strPath为路径
 		//File f = new File(Environment.getRootDirectory().getPath()); //strPath为路径
 
 		//Log.v("debuga", f.getPath());
@@ -411,15 +516,29 @@ public class MainActivity extends Activity {
 		}
 		else {
 			String[] file_list = f.list(); //String[] 
-			SimpleDateFormat dateformat1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E");
-			Log.v("debuga", "file_list:" + f.exists());
-			for (int i = 0; i < file_list.length; i++) {
-				if (file_list[i].endsWith(".psong")) {
-					HashMap<String, String> info = new HashMap<String, String>();
-					Log.v("debuga", "aaa:" + dateformat1.format(((new File(dirPath + "/" + file_list[i])).lastModified())) + " length:" + file_list[i]);
-					info.put("name", file_list[i].substring(0, file_list[i].length() - 6));
-					info.put("time", dateformat1.format(((new File(dirPath + "/" + file_list[i])).lastModified())));
-					data.add(info);
+			if (file_list.length == 0) {
+				Dialog dialog = new AlertDialog.Builder(MainActivity.this)  
+					//设置对话框要显示的消息  
+					.setMessage("无历史曲目")  
+					//设置按钮
+					.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
+						public void onClick(DialogInterface dialog, int which) {  
+							//好像什么都不用干
+						}  
+					}).create();
+				dialog.show();
+			}
+			else {
+				SimpleDateFormat dateformat1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E");
+				Log.v("debuga", "file_list:" + f.exists());
+				for (int i = 0; i < file_list.length; i++) {
+					if (file_list[i].endsWith(".psong")) {
+						HashMap<String, String> info = new HashMap<String, String>();
+						Log.v("debuga", "aaa:" + dateformat1.format(((new File(historyPath + "/" + file_list[i])).lastModified())) + " length:" + file_list[i]);
+						info.put("name", file_list[i].substring(0, file_list[i].length() - 6));
+						info.put("time", dateformat1.format(((new File(historyPath + "/" + file_list[i])).lastModified())));
+						data.add(info);
+					}
 				}
 			}
 		}
@@ -429,15 +548,37 @@ public class MainActivity extends Activity {
 		listview.setAdapter(adapter);
 		listview.bringToFront();
 		listview.setVisibility(View.VISIBLE);
+		Toast.makeText(MainActivity.this, "LongClick on item to delete", Toast.LENGTH_SHORT).show();
 		
-		//Log.v("debuga", listview.toString());
-		/*listview.setOnItemLongClickListener(new OnItemLongClickListener() {
+		listview.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				Toast.makeText(MainActivity.this, "LongClick", 200).show();
+				ListView lv = (ListView)arg0;
+				lv.setVisibility(View.GONE);
+				@SuppressWarnings("unchecked")
+				HashMap<String, String> tem = (HashMap<String, String>)lv.getItemAtPosition(arg2);
+				tempName = tem.get("name");
+				Dialog isDeleteDialog = new AlertDialog.Builder(MainActivity.this).setMessage("是否删除本曲目？")
+						//设置按钮
+						.setPositiveButton("删了吧", new DialogInterface.OnClickListener(){ 
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								File f = new File(historyPath + "/" + tempName + ".psong");
+								f.delete();
+							}  
+						})
+						.setNegativeButton("不要删", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								//好像什么都不用做
+							}
+						})
+						.setCancelable(true).create();
+					isDeleteDialog.show();
 				return false;
 			}
 		});
-		*/
 	
 		listview.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -450,17 +591,16 @@ public class MainActivity extends Activity {
 				lv.setVisibility(View.GONE);
 			}
 		});
-		
 	}
 
 	private void onSave() throws IOException {
-		File f = new File(this.dirPath); //strPath为路径
+		File f = new File(this.historyPath); //strPath为路径
 		if (!f.exists()) {
 			f.mkdirs();	//建立文件夹 
 			Log.v("debug", "mkdir~");
 			Log.v("debug", "f.exists(): " + f.getPath() + " " + f.exists());
 		}
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dirPath + "/" + fileName + ".psong"));
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(historyPath + "/" + fileName + ".psong"));
 		out.writeObject(Declare.melody);
 		out.close();
 		Declare.isSaved = true;
@@ -468,7 +608,20 @@ public class MainActivity extends Activity {
 	}
 	
 	public void playSong(int start) {
-		// TODO Auto-generated method stub
+	
+//		if (start == 0) {
+//			start = 10000;
+//			Log.v("pstart", "here");
+//			for (int i = 0; i < 5; i++) {
+//				if (Declare.melody[i].starts.size() == 0) continue;
+//				int temp = Declare.melody[i].starts.get(0);
+//				Log.v("pstart", "start/temp: " + start + "/" + temp);
+//				if (temp < start) {
+//					start = temp;
+//				}
+//			}
+//			if (start == 10000) start = 0;
+//		}
 		int end = 0;
 		for (int i = 0; i < 5; i++) {
 			Log.v("playSong", "color: " + i + " size:" + Declare.melody[i].stops.size());
@@ -511,6 +664,38 @@ public class MainActivity extends Activity {
 		Declare.menu_status = 1;
 		Toast.makeText(MainActivity.this, R.string.prompt_stop_play, Toast.LENGTH_SHORT).show();
 		
+	}
+
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		super.onRestart();
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		drawView.reDraw();
+	}
+
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
 	}
 
 	

@@ -102,11 +102,42 @@ public class DrawLines extends View{
 					Declare.melody[Declare.color_status].notes.add(0);	
 				}
 				Declare.melody[Declare.color_status].notes.set(tempoId, note);
+				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				Declare.isSaved = false;
 			}
 			mPath.moveTo(tempoId * Declare.tempo_length, y);
 			mX = x;
 			mY = y;
 		}
+		else if(Declare.menu_status == 2){  //橡皮擦状态
+			for(int i = 0; i < 5; i++ ){
+				int noteId = Declare.getIndexOfSound(note);
+				
+				Log.v("Melody Size"	, ""+Declare.melody.length);
+			//	
+				if(tempoId >= 0 && tempoId <Declare.melody[i].notes.size() && 
+						noteId == Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))){
+					Log.v("Melody", "Melody = " +i);
+					Log.v("NoteID, tempoId", ""+noteId + "," + tempoId);
+					Log.v("NoteID", ""+Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId)));
+					for(int j = 0; j < Declare.melody[i].starts.size(); j++){
+						Log.v("Start at","start = "+Declare.melody[i].starts.get(j)+", stop = " + Declare.melody[i].stops.get(j));
+						if(noteId > Declare.melody[i].starts.get(j)){
+							for(int k = Declare.melody[i].starts.get(j); k < Declare.melody[i].stops.get(j); k++){
+								Declare.melody[i].notes.set(k, 0);
+							}
+						}
+					}
+					clearCanvas();
+					reDraw();
+					add_last_edit();
+					Declare.isSaved = false;
+					break;
+				}
+			}
+			
+		}
+
 	}
 
 	private void touch_move(float x, float y) {
@@ -135,8 +166,6 @@ public class DrawLines extends View{
 			mCanvas.drawPath(mPath, mPaint);
 			Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
 			mPath = null;// 重新置空
-			mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
-			//mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
 			clearCanvas();
 			reDraw();	//重新将所有的曲线都画出来
 		}
@@ -149,6 +178,9 @@ public class DrawLines extends View{
 	}
 
 	public void clearCanvas() {
+		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
+				Bitmap.Config.ARGB_8888);
+		// 保存一次一次绘制出来的图形
 		mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
 	}
 	
@@ -156,7 +188,6 @@ public class DrawLines extends View{
 	 * 撤销的核心思想就是将画布清空， 将保存下来的Path路径最后一个移除掉， 重新将路径画在画布上面。
 	 */
 	public void undo() {
-		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
 		clearCanvas();
 		Log.v("cannot redo", "" + Declare.LastEdit.size() + ", color = " + ((Melody)Declare.LastEdit.getLast()).color);
 		if (Declare.LastEdit.size()>0) {
