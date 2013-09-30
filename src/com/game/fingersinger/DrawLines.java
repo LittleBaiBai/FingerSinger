@@ -90,26 +90,56 @@ public class DrawLines extends View{
 	}
 	
 	private void touch_start(float x, float y) {
+		Log.v("Menu status", ""+Declare.menu_status);
 		candraw = false;
+		tempoId = (int)(x / Declare.tempo_length);
+		note = (int)y;
 		if (inCanvas(x, y)) {
 			candraw = true;
 			add_last_edit();
-			tempoId = (int)(x / Declare.tempo_length);
-			note = (int)y;
 			Log.v("tempoID", "" + tempoId);
 			if (note != 0){//已按下
 				for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++) {
 					Declare.melody[Declare.color_status].notes.add(0);	
 				}
 				Declare.melody[Declare.color_status].notes.set(tempoId, note);
+				Declare.melody[Declare.color_status].starts.add(tempoId);
 			}
 			mPath.moveTo(tempoId * Declare.tempo_length, y);
 			mX = x;
 			mY = y;
 		}
+		else if(Declare.menu_status == 2){  //橡皮擦状态
+			for(int i = 0; i < 5; i++ ){
+				int noteId = Declare.getIndexOfSound(note);
+				
+				Log.v("Melody Size"	, ""+Declare.melody.length);
+			//	
+				if(tempoId >= 0 && tempoId <Declare.melody[i].notes.size() && 
+						noteId == Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))){
+					Log.v("Melody", "Melody = " +i);
+					Log.v("NoteID, tempoId", ""+noteId + "," + tempoId);
+					Log.v("NoteID", ""+Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId)));
+					for(int j = 0; j < Declare.melody[i].starts.size(); j++){
+						Log.v("Start at","start = "+Declare.melody[i].starts.get(j)+", stop = " + Declare.melody[i].stops.get(j));
+						if(noteId > Declare.melody[i].starts.get(j)){
+							for(int k = Declare.melody[i].starts.get(j); k < Declare.melody[i].stops.get(j); k++){
+								Declare.melody[i].notes.set(k, 0);
+							}
+						}
+					}
+					clearCanvas();
+					reDraw();
+					add_last_edit();
+					break;
+				}
+			}
+			
+		}
 	}
 
 	private void touch_move(float x, float y) {
+		
 		tempoId = (int)(x / Declare.tempo_length);
 		note = (int)y;
 		if (candraw && inCanvas(x, y) && x > mX){ // 起点在画布内，画线在画布内，没有往回画
@@ -126,6 +156,7 @@ public class DrawLines extends View{
 			mY = y;
 		
 		}
+		
 		
 	}
 
@@ -149,6 +180,7 @@ public class DrawLines extends View{
 	}
 
 	public void clearCanvas() {
+		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
 		mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
 	}
 	
@@ -169,12 +201,8 @@ public class DrawLines extends View{
 		
 	}
 
-	/**
-	 * 重做的核心思想就是将撤销的路径保存到另外一个集合里面(栈)， 然后从redo的集合里面取出最顶端对象， 画在画布上面即可。
-	 */
-	public void redo() {
-		// TODO
-	}
+	
+	
 	
 	public void reDraw() {
 		int i,j;
