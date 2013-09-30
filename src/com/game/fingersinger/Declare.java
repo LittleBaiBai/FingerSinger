@@ -12,8 +12,7 @@ public class Declare extends Application {
 	public static int screen_width;
 	public static int screen_height;
 	public static boolean isSaved;
-	public static SoundManager drawSoundManager;
-	public static SoundManager playSoundManager;
+	public static SoundManager[] soundManager;
 	public static int pointerInScreen;
 	public static int pointerInMelody;
 	public static Melody[] melody;
@@ -46,8 +45,7 @@ public class Declare extends Application {
 		isSaved = true;
 		tempo_length = 40;
 		
-		drawSoundManager = new SoundManager();
-		playSoundManager = new SoundManager();
+		soundManager = new SoundManager[5];
 		
 		pointerInScreen = 0;
 		pointerInMelody = 0;

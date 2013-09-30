@@ -19,14 +19,14 @@ public class ProgressSeekListener implements OnSeekBarChangeListener{
 		// TODO Auto-generated method stub
 		Log.v("Progress", "onProgressChanged: " + progress);
 		mProgress = progress;
-		Declare.drawSoundManager.playSound(10 + 22 * mIndex, (float)mProgress / 100);
+		Declare.soundManager[mIndex].playSound(10 + 22 * mIndex, (float)mProgress / 100);
 	}
 
 	@Override
 	public void onStartTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
 		Log.v("Progress", "onStart: " + mProgress);
-		Declare.drawSoundManager.playSound(10 + 22 * mIndex, Declare.melody[mIndex].voice);
+		Declare.soundManager[mIndex].playSound(10 + 22 * mIndex, Declare.melody[mIndex].voice);
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class ProgressSeekListener implements OnSeekBarChangeListener{
 		// TODO Auto-generated method stub
 		Log.v("Progress", "onStop_before: " + mProgress);
 		Declare.melody[mIndex].voice = (float)mProgress / 100;
-		Declare.drawSoundManager.playSound(10 + 22 * mIndex, Declare.melody[mIndex].voice);
+		Declare.soundManager[mIndex].playSound(10 + 22 * mIndex, Declare.melody[mIndex].voice);
 		Log.v("Progress", "onStop_after: " + Declare.melody[mIndex].voice);
 	}
 

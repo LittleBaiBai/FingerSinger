@@ -67,8 +67,10 @@ public class MainActivity extends Activity {
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
         this.setContentView(R.layout.loading);
-		Declare.drawSoundManager.initSounds(getBaseContext(), 1);
-		Declare.playSoundManager.initSounds(getBaseContext(), 5);
+        for (int i = 0; i < 5; i++){
+        	Declare.soundManager[i] = new SoundManager();
+        	Declare.soundManager[i].initSounds(getBaseContext(), i);
+        }
         getDirPath();   
         initDeclare();
 		initView(); 
@@ -642,17 +644,17 @@ public class MainActivity extends Activity {
 					break;
 				}
 				if (note == 0) {
-					Declare.playSoundManager.playSound(0, Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(0, Declare.melody[j].voice);
 				}
 				else {
-					Declare.playSoundManager.playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
 				}
 			}	
 			if (Declare.menu_status == 5) {
 				break;
 			}
 			try {
-				Thread.sleep(500);
+				Thread.sleep(400);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -666,6 +668,23 @@ public class MainActivity extends Activity {
 		
 	}
 
+
+	public void playSongThread(int start) {
+//		if (start == 0) {
+//			start = 10000;
+//			Log.v("pstart", "here");
+//			for (int i = 0; i < 5; i++) {
+//				if (Declare.melody[i].starts.size() == 0) continue;
+//				int temp = Declare.melody[i].starts.get(0);
+//				Log.v("pstart", "start/temp: " + start + "/" + temp);
+//				if (temp < start) {
+//					start = temp;
+//				}
+//			}
+//			if (start == 10000) start = 0;
+//		}
+		
+	}
 	
 	@Override
 	protected void onPause() {

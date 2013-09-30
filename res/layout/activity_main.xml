@@ -144,8 +144,8 @@
 	    android:inputType="text"
 	    android:visibility="gone">  
 	</EditText>  
-		
-	<ImageView
+	
+    <ImageView
         android:id="@+id/pointer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -154,7 +154,5 @@
 	    android:background="#00000000"
         android:src="@drawable/pointer_unpress" 
         android:contentDescription="@string/button_pointer"/>
-    
-    
    
 </RelativeLayout>

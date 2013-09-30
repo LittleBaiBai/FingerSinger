@@ -102,7 +102,8 @@ public class DrawLines extends View{
 					Declare.melody[Declare.color_status].notes.add(0);	
 				}
 				Declare.melody[Declare.color_status].notes.set(tempoId, note);
-				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				Declare.melody[Declare.color_status].starts.add(tempoId);
+				Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
 				Declare.isSaved = false;
 			}
 			mPath.moveTo(tempoId * Declare.tempo_length, y);
@@ -150,7 +151,7 @@ public class DrawLines extends View{
 				}
 				Log.v("touch_move", "note: " + note);
 				Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
-				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
 			}
 			mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
 			mX = x;
