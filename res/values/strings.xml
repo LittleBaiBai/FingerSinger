@@ -24,5 +24,6 @@
     <string name="text_yin">音</string>
     <string name="text_liang">量</string>
     <string name="text_speed">速度</string>
+    <string name="continue_text">点击屏幕继续</string>
 
 </resources>

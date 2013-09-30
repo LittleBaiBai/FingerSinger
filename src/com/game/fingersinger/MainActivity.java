@@ -68,12 +68,8 @@ public class MainActivity extends Activity {
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
         this.setContentView(R.layout.loading);
-        for (int i = 0; i < 5; i++){
-        	Declare.soundManager[i] = new SoundManager();
-        	Declare.soundManager[i].initSounds(getBaseContext(), i);
-        }
-        getDirPath();   
-        initDeclare();
+ 
+        getDirPath(); 
 		initView(); 
 	}	
 
@@ -82,34 +78,6 @@ public class MainActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-	
-	private void initDeclare() {
-		Declare.menu_status = 1;
-		Declare.color_status = 0;
-		
-		Declare.screen_width = getWindowManager().getDefaultDisplay().getWidth();
-		Declare.screen_height = getWindowManager().getDefaultDisplay().getHeight();
-		
-		Declare.button_menu_vertical = (float) (Declare.screen_height * 70 / 480);
-		Declare.button_menu_horizontal = (float) (Declare.screen_width * 70 / 800);
-		Declare.button_color_vertical = (float) (Declare.screen_height * 45 / 480);
-		Declare.button_color_horizontal = (float) (Declare.screen_width * 73 / 800);
-		Declare.button_undo_vertical = (float) (Declare.screen_height * 41 / 480);
-		Declare.button_undo_horizontal = (float) (Declare.screen_width * 62 / 800);
-		Declare.scale_start_x_y = (float) (Declare.screen_height * 11 / 480);
-		Declare.scale_length_vertical = (float) (Declare.screen_height * 28 / 480);
-		Declare.pointer_pressed = (float) (Declare.screen_width * 49 / 800);
-		Declare.pointer_unpress = (float) (Declare.screen_width * 42 / 800);
-		Declare.pointer_stick = (float) (Declare.screen_width * 17 / 800);
-		Declare.pointer_dx = (float) (Declare.screen_width * 9 / 800);
-		Declare.note_inner_dist = (float) (Declare.screen_height * 20 / 480);
-		
-		Declare.colors[0] = getResources().getColor(R.color.green); 
-		Declare.colors[1] = getResources().getColor(R.color.yellow);
-		Declare.colors[2] = getResources().getColor(R.color.red);
-		Declare.colors[3] = getResources().getColor(R.color.blue);
-		Declare.colors[4] = getResources().getColor(R.color.purple);
 	}
 	
 	private void initView() {
@@ -130,9 +98,6 @@ public class MainActivity extends Activity {
 		drawView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));  
 		drawLayout.addView(drawView);
 
-	    RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
-	    voiceBarLayout.setVisibility(View.GONE);
-	    
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
