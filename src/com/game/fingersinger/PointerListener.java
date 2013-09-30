@@ -51,8 +51,8 @@ public class PointerListener extends View implements OnTouchListener {
         case MotionEvent.ACTION_UP:
     		Log.v("Pointer", "Action_up" + event_action + " x/y: " + mx + "/" + my);
         	picMove(mx, 0);  
-            pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_unpress));
-            break;     
+        	pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_unpress));
+            break;
         }    
 		return true;
 		
@@ -91,6 +91,7 @@ public class PointerListener extends View implements OnTouchListener {
         Animation  animation = new TranslateAnimation(lastX - Declare.button_menu_horizontal, positionX - Declare.button_menu_horizontal, 0, positionY);
         animation.setFillAfter(true);
         pointer.startAnimation(animation);
+        Declare.pointerInScreen = (int) positionX;
         lastX = positionX;
         Log.v("pointer_x", "after: x/position/lastx: " + x + "/" + positionX + "/" + lastX);
         Log.v("pointer_x", " ");

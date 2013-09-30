@@ -21,5 +21,8 @@
     <string name="button_pointer">used for move canvas and point out the start of the current play</string>
     <string name="action_export_audio">导出声音</string>
     <string name="action_export_picture">导出图像</string>
+    <string name="text_yin">音</string>
+    <string name="text_liang">量</string>
+    <string name="text_speed">速度</string>
 
 </resources>

@@ -32,6 +32,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -129,7 +130,7 @@ public class MainActivity extends Activity {
 		drawView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));  
 		drawLayout.addView(drawView);
 
-	    LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+	    RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 	    voiceBarLayout.setVisibility(View.GONE);
 	    
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
@@ -151,13 +152,13 @@ public class MainActivity extends Activity {
 					Declare.menu_status = 3;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_voice, Toast.LENGTH_SHORT).show();
 
-				    LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 				    voiceBarLayout.setVisibility(View.VISIBLE);
 				    
 				    changeVoice();
 				}
 				else {	//既可能是menu_status=3（音量）, 又可能menu_status=4（播放）
-					LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 				    voiceBarLayout.setVisibility(View.GONE);
 					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 					Declare.menu_status = 1;
@@ -265,7 +266,7 @@ public class MainActivity extends Activity {
 	
 	public boolean onOptionsItemSelected(MenuItem item) {  
 	
-		LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+		RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 	    voiceBarLayout.setVisibility(View.GONE);
 	    
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
@@ -654,7 +655,7 @@ public class MainActivity extends Activity {
 				break;
 			}
 			try {
-				Thread.sleep(400);
+				Thread.sleep((long) (500 * Declare.speed));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -669,23 +670,6 @@ public class MainActivity extends Activity {
 	}
 
 
-	public void playSongThread(int start) {
-//		if (start == 0) {
-//			start = 10000;
-//			Log.v("pstart", "here");
-//			for (int i = 0; i < 5; i++) {
-//				if (Declare.melody[i].starts.size() == 0) continue;
-//				int temp = Declare.melody[i].starts.get(0);
-//				Log.v("pstart", "start/temp: " + start + "/" + temp);
-//				if (temp < start) {
-//					start = temp;
-//				}
-//			}
-//			if (start == 10000) start = 0;
-//		}
-		
-	}
-	
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
