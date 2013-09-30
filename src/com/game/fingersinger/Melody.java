@@ -10,6 +10,7 @@ public class Melody implements Serializable {
 	ArrayList<Integer> notes;
 	ArrayList<Integer> starts;
 	ArrayList<Integer> stops;
+	ArrayList<Integer> starts;
 	float voice;
 	int color;
 	
@@ -17,6 +18,7 @@ public class Melody implements Serializable {
 		notes = new ArrayList<Integer>();
 		starts = new ArrayList<Integer>();
 		stops = new ArrayList<Integer>();
+		starts = new ArrayList<Integer>();
 		voice = (float)0.8;
 		color = c;
 	}
@@ -25,6 +27,7 @@ public class Melody implements Serializable {
 		notes = new ArrayList<Integer>(m.notes);
 		starts = new ArrayList<Integer>(m.starts);
 		stops = new ArrayList<Integer>(m.stops);
+		starts = new ArrayList<Integer>(m.starts);
 		voice = m.voice;
 		color = m.color;
 	}

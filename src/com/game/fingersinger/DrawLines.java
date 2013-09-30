@@ -103,7 +103,12 @@ public class DrawLines extends View{
 					Declare.melody[Declare.color_status].notes.add(0);	
 				}
 				Declare.melody[Declare.color_status].notes.set(tempoId, note);
+<<<<<<< HEAD
 				Declare.melody[Declare.color_status].starts.add(tempoId);
+=======
+				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				Declare.isSaved = false;
+>>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 			}
 			mPath.moveTo(tempoId * Declare.tempo_length, y);
 			mX = x;
@@ -131,11 +136,19 @@ public class DrawLines extends View{
 					clearCanvas();
 					reDraw();
 					add_last_edit();
+<<<<<<< HEAD
+=======
+					Declare.isSaved = false;
+>>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 					break;
 				}
 			}
 			
 		}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 	}
 
 	private void touch_move(float x, float y) {
@@ -166,8 +179,6 @@ public class DrawLines extends View{
 			mCanvas.drawPath(mPath, mPaint);
 			Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
 			mPath = null;// 重新置空
-			mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
-			//mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
 			clearCanvas();
 			reDraw();	//重新将所有的曲线都画出来
 		}
@@ -180,7 +191,13 @@ public class DrawLines extends View{
 	}
 
 	public void clearCanvas() {
+<<<<<<< HEAD
 		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
+=======
+		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
+				Bitmap.Config.ARGB_8888);
+		// 保存一次一次绘制出来的图形
+>>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 		mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
 	}
 	
@@ -188,7 +205,6 @@ public class DrawLines extends View{
 	 * 撤销的核心思想就是将画布清空， 将保存下来的Path路径最后一个移除掉， 重新将路径画在画布上面。
 	 */
 	public void undo() {
-		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
 		clearCanvas();
 		Log.v("cannot redo", "" + Declare.LastEdit.size() + ", color = " + ((Melody)Declare.LastEdit.getLast()).color);
 		if (Declare.LastEdit.size()>0) {

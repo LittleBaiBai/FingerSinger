@@ -19,5 +19,7 @@
     <string name="prompt_status_draw">开始在屏幕上作画吧！右下角色块选择“音&amp;色”~</string>
     <string name="prompt_stop_play">播放完毕</string>
     <string name="button_pointer">used for move canvas and point out the start of the current play</string>
+    <string name="action_export_audio">导出声音</string>
+    <string name="action_export_picture">导出图像</string>
 
 </resources>

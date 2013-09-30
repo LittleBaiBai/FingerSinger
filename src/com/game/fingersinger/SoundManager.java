@@ -149,11 +149,4 @@ public class SoundManager{
 		mSoundPool.play(mSoundPoolMap.get(index), streamVolume * voice, streamVolume * voice, 1, 0, 1f);
 	}
 	
-//	public void playLoopedSound(int index)
-//	{
-//		float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-//		streamVolume = streamVolume/mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-//		mSoundPool.play(mSoundPoolMap.get(index),streamVolume,streamVolume,1,-1,1f);
-//	}
-
 }
