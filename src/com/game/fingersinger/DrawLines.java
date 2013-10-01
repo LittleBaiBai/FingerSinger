@@ -130,6 +130,13 @@ public class DrawLines extends View{
 					}
 					
 				}
+<<<<<<< HEAD
+=======
+				Declare.melody[Declare.color_status].notes.set(tempoId, note);
+				Declare.melody[Declare.color_status].starts.add(tempoId);
+				Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				Declare.isSaved = false;
+>>>>>>> de27fe012e3da67b7a79b067dddee514214e734b
 			}
 		}
 		//橡皮擦状态
@@ -183,7 +190,11 @@ public class DrawLines extends View{
 			//调音状态
 			else{
 				Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
+<<<<<<< HEAD
 				reDraw();
+=======
+				Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+>>>>>>> de27fe012e3da67b7a79b067dddee514214e734b
 			}
 		}		
 		

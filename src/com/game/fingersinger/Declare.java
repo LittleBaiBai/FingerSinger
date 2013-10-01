@@ -12,14 +12,14 @@ public class Declare extends Application {
 	public static int screen_width;
 	public static int screen_height;
 	public static boolean isSaved;
-	public static SoundManager drawSoundManager;
-	public static SoundManager playSoundManager;
+	public static SoundManager[] soundManager;
 	public static int pointerInScreen;
 	public static int pointerInMelody;
 	public static Melody[] melody;
 	public static LinkedList<Melody> LastEdit;
 	public static int[] colors;
 	public static int tempo_length;
+	public static float speed;
 	
 	public static float button_menu_vertical;
 	public static float button_menu_horizontal;
@@ -39,17 +39,18 @@ public class Declare extends Application {
 	public static float pointer_stick;
 	public static float pointer_dx;
 	
+	
 	public Declare(){
 		menu_status = 1;
 		color_status = 1;
 		undo_status = 1;
 		isSaved = true;
 		tempo_length = 40;
+		speed = (float)0.8;
 		
-		drawSoundManager = new SoundManager();
-		playSoundManager = new SoundManager();
+		soundManager = new SoundManager[5];
 		
-		pointerInScreen = 0;
+		pointerInScreen = 70;
 		pointerInMelody = 0;
 		
 		melody = new Melody[5];

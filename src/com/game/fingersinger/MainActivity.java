@@ -32,6 +32,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -67,11 +68,17 @@ public class MainActivity extends Activity {
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
         this.setContentView(R.layout.loading);
+<<<<<<< HEAD
 	//	Declare.drawSoundManager.initSounds(getBaseContext(), 1);
 	//	Declare.playSoundManager.initSounds(getBaseContext(), 5);
         getDirPath();   
         initDeclare();
 	//	initView(); 
+=======
+ 
+        getDirPath(); 
+		initView(); 
+>>>>>>> de27fe012e3da67b7a79b067dddee514214e734b
 	}	
 
 	@Override
@@ -79,34 +86,6 @@ public class MainActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
-	}
-	
-	private void initDeclare() {
-		Declare.menu_status = 1;
-		Declare.color_status = 0;
-		
-		Declare.screen_width = getWindowManager().getDefaultDisplay().getWidth();
-		Declare.screen_height = getWindowManager().getDefaultDisplay().getHeight();
-		
-		Declare.button_menu_vertical = (float) (Declare.screen_height * 70 / 480);
-		Declare.button_menu_horizontal = (float) (Declare.screen_width * 70 / 800);
-		Declare.button_color_vertical = (float) (Declare.screen_height * 45 / 480);
-		Declare.button_color_horizontal = (float) (Declare.screen_width * 73 / 800);
-		Declare.button_undo_vertical = (float) (Declare.screen_height * 41 / 480);
-		Declare.button_undo_horizontal = (float) (Declare.screen_width * 62 / 800);
-		Declare.scale_start_x_y = (float) (Declare.screen_height * 11 / 480);
-		Declare.scale_length_vertical = (float) (Declare.screen_height * 28 / 480);
-		Declare.pointer_pressed = (float) (Declare.screen_width * 49 / 800);
-		Declare.pointer_unpress = (float) (Declare.screen_width * 42 / 800);
-		Declare.pointer_stick = (float) (Declare.screen_width * 17 / 800);
-		Declare.pointer_dx = (float) (Declare.screen_width * 9 / 800);
-		Declare.note_inner_dist = (float) (Declare.screen_height * 20 / 480);
-		
-		Declare.colors[0] = getResources().getColor(R.color.green); 
-		Declare.colors[1] = getResources().getColor(R.color.yellow);
-		Declare.colors[2] = getResources().getColor(R.color.red);
-		Declare.colors[3] = getResources().getColor(R.color.blue);
-		Declare.colors[4] = getResources().getColor(R.color.purple);
 	}
 	
 	private void initView() {
@@ -127,9 +106,6 @@ public class MainActivity extends Activity {
 		drawView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));  
 		drawLayout.addView(drawView);
 
-	    LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
-	    voiceBarLayout.setVisibility(View.GONE);
-	    
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
@@ -149,13 +125,13 @@ public class MainActivity extends Activity {
 					Declare.menu_status = 3;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_voice, Toast.LENGTH_SHORT).show();
 
-				    LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 				    voiceBarLayout.setVisibility(View.VISIBLE);
 				    
 				    changeVoice();
 				}
 				else {	//既可能是menu_status=3（音量）, 又可能menu_status=4（播放）
-					LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 				    voiceBarLayout.setVisibility(View.GONE);
 					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 					Declare.menu_status = 1;
@@ -263,7 +239,7 @@ public class MainActivity extends Activity {
 	
 	public boolean onOptionsItemSelected(MenuItem item) {  
 	
-		LinearLayout voiceBarLayout = (LinearLayout) findViewById(R.id.voice_bar);
+		RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 	    voiceBarLayout.setVisibility(View.GONE);
 	    
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
@@ -642,17 +618,17 @@ public class MainActivity extends Activity {
 					break;
 				}
 				if (note == 0) {
-					Declare.playSoundManager.playSound(0, Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(0, Declare.melody[j].voice);
 				}
 				else {
-					Declare.playSoundManager.playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
 				}
 			}	
 			if (Declare.menu_status == 5) {
 				break;
 			}
 			try {
-				Thread.sleep(500);
+				Thread.sleep((long) (500 * Declare.speed));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -666,7 +642,7 @@ public class MainActivity extends Activity {
 		
 	}
 
-	
+
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
