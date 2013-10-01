@@ -33,9 +33,10 @@ public class PointerListener extends View implements OnTouchListener{
 		pointer = view;
 		scroll_area = 50;
 	}
-
+	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+		Log.v("Pointer", "*********************************************");
 		mx = (float) event.getRawX();  
 		my = (float) event.getRawY();  
 		int event_action = event.getAction(); 
@@ -47,16 +48,19 @@ public class PointerListener extends View implements OnTouchListener{
 			if (my > Declare.screen_height - Declare.pointer_pressed){
 				pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_pressdown));
 			}
-			lastX = mx - Declare.pointer_unpress;
+			lastX = Declare.button_menu_horizontal;
+			Log.v("pointer_x", "mx/onDown_lastx: " + mx + "/" + lastX);
 			break;
         case MotionEvent.ACTION_MOVE:
     		Log.v("Pointer", "Action_move" + event_action + " x/y: " + mx + "/" + my);
-        	picMove(mx, 0);  
+    		picMove(mx, 0);  
             break; 
         case MotionEvent.ACTION_UP:
     		Log.v("Pointer", "Action_up" + event_action + " x/y: " + mx + "/" + my);
         	picMove(mx, 0);  
             pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_unpress));
+        //    v.layout((int)(mx - pointer.getWidth()/2), 0, (int)(mx + pointer.getWidth()/2), Declare.screen_height+20);    
+            v.invalidate();
             break;     
         }    
 		return true;
@@ -90,10 +94,15 @@ public class PointerListener extends View implements OnTouchListener{
         	
         	
         }
-         
+        if (positionX == lastX) return;
+        Log.v("pointer_x", "before: x/position/lastx: " + x + "/" + positionX + "/" + lastX);
         //pointer.setLayoutParams(new RelativeLayout.LayoutParams((int) positionX, (int) positionY)); 
-        Animation  animation = new TranslateAnimation(lastX, positionX, 0, positionY);
+        Animation  animation = new TranslateAnimation(lastX - Declare.button_menu_horizontal, positionX-Declare.button_menu_horizontal, 0, positionY);
         pointer.startAnimation(animation);
+        animation.setFillAfter(true);
+        
         lastX = positionX;
+        Log.v("pointer_x", "after: x/position/lastx: " + x + "/" + positionX + "/" + lastX);
+        Log.v("pointer_x", "");
     }  
 }

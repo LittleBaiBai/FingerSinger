@@ -10,7 +10,6 @@ public class Melody implements Serializable {
 	ArrayList<Integer> notes;
 	ArrayList<Integer> starts;
 	ArrayList<Integer> stops;
-	ArrayList<Integer> starts;
 	float voice;
 	int color;
 	

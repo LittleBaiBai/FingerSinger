@@ -67,11 +67,11 @@ public class MainActivity extends Activity {
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
         this.setContentView(R.layout.loading);
-		Declare.drawSoundManager.initSounds(getBaseContext(), 1);
-		Declare.playSoundManager.initSounds(getBaseContext(), 5);
+	//	Declare.drawSoundManager.initSounds(getBaseContext(), 1);
+	//	Declare.playSoundManager.initSounds(getBaseContext(), 5);
         getDirPath();   
         initDeclare();
-		initView(); 
+	//	initView(); 
 	}	
 
 	@Override

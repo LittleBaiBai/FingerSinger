@@ -1,6 +1,7 @@
 /*Master branch*/
 package com.game.fingersinger;
 
+
 import android.util.AttributeSet;
 import android.util.Log;
 import android.content.Context;
@@ -23,12 +24,14 @@ public class DrawLines extends View{
 	private int note, note1; //曲线当前点的音高
 	private int tempoId1;
 	//private static final float TOUCH_TOLERANCE = 3;
-	private boolean candraw = false;
+	private boolean in_canvas = false;
+	private int try_melody = 0; //用于尝试用户点击在哪一条旋律上
 
 	// 保存Path路径的集合,用List集合来模拟栈
 	//private static List<DrawPath> savePath;
 	// 记录Path路径的对象
 	private DrawPath dp;	//用于画已保存的路径
+	private boolean can_draw;
 	private class DrawPath {
 		public Path path;// 路径
 		public Paint paint;// 画笔
@@ -81,9 +84,8 @@ public class DrawLines extends View{
 	}
 	
 	private boolean inCanvas(float x, float y) {
-		if (Declare.menu_status == 1 && 
-				(x < (Declare.screen_width - Declare.button_menu_horizontal) 
-				|| y < (Declare.screen_height - Declare.button_color_vertical))) {
+		if (x < (Declare.screen_width - Declare.button_menu_horizontal)
+				|| y < (Declare.screen_height - Declare.button_color_vertical)) {
 			return true; 
 		}
 		return false;
@@ -91,35 +93,50 @@ public class DrawLines extends View{
 	
 	private void touch_start(float x, float y) {
 		Log.v("Menu status", ""+Declare.menu_status);
-		candraw = false;
+		in_canvas = inCanvas(x,y);
 		tempoId = (int)(x / Declare.tempo_length);
 		note = (int)y;
-		if (inCanvas(x, y)) {
-			candraw = true;
-			add_last_edit();
-			Log.v("tempoID", "" + tempoId);
-			if (note != 0){//已按下
-				for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++) {
-					Declare.melody[Declare.color_status].notes.add(0);	
+		int noteId = Declare.getIndexOfSound(note);
+		
+		//menu_status == 1, 画笔状态
+		if (Declare.menu_status == 1 && in_canvas) {
+			// 可以新画一笔
+			can_draw = true;
+			if(x >= (Declare.melody[Declare.color_status].stops.get(Declare.melody[Declare.color_status].stops.size()))){
+				add_last_edit();     //保存之前的状态
+				if (note != 0){//已按下
+					for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++) {
+						Declare.melody[Declare.color_status].notes.add(0);	
+					}
+					Declare.melody[Declare.color_status].notes.set(tempoId, note);
+					Declare.melody[Declare.color_status].starts.add(tempoId);
+			//		Declare.drawSoundManager.playSound(noteId + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+					Declare.isSaved = false;
 				}
-				Declare.melody[Declare.color_status].notes.set(tempoId, note);
-<<<<<<< HEAD
-				Declare.melody[Declare.color_status].starts.add(tempoId);
-=======
-				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
-				Declare.isSaved = false;
->>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
+				mPath.moveTo(tempoId * Declare.tempo_length, y);
+				mX = x;
+				mY = y;
 			}
-			mPath.moveTo(tempoId * Declare.tempo_length, y);
-			mX = x;
-			mY = y;
+			//调音
+			else {
+				can_draw = false;	//设置为不可以新画的状态
+				//检测是否点到了某条线的某个音准点上
+				for(int i = 0; i < 5; i++ ){
+					if(tempoId >= 0 && tempoId <Declare.melody[i].notes.size() &&
+							noteId == Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))){
+						add_last_edit();     //保存之前的状态
+						try_melody = i;
+						break;
+					}
+					
+				}
+			}
 		}
-		else if(Declare.menu_status == 2){  //橡皮擦状态
+		//橡皮擦状态
+		else if(Declare.menu_status == 2){  
 			for(int i = 0; i < 5; i++ ){
-				int noteId = Declare.getIndexOfSound(note);
-				
 				Log.v("Melody Size"	, ""+Declare.melody.length);
-			//	
+				// 检测是否点到了某条线的某个音准点上
 				if(tempoId >= 0 && tempoId <Declare.melody[i].notes.size() && 
 						noteId == Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))){
 					Log.v("Melody", "Melody = " +i);
@@ -136,51 +153,55 @@ public class DrawLines extends View{
 					clearCanvas();
 					reDraw();
 					add_last_edit();
-<<<<<<< HEAD
-=======
 					Declare.isSaved = false;
->>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 					break;
 				}
 			}
 			
 		}
-<<<<<<< HEAD
-=======
-
->>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 	}
 
-	private void touch_move(float x, float y) {
-		
-		tempoId = (int)(x / Declare.tempo_length);
+	private void touch_move(float x, float y) {	
 		note = (int)y;
-		if (candraw && inCanvas(x, y) && x > mX){ // 起点在画布内，画线在画布内，没有往回画
-			if (note != 0){
-				for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++){
-					Declare.melody[Declare.color_status].notes.add(0);	
+		//Declare == 1, 画笔状态 
+		if(Declare.menu_status == 1 ){
+			//正在画的状态
+			if (can_draw && inCanvas(x, y) && x > mX){ // 起点在画布内且可画，画线在画布内，没有往回画
+				tempoId = (int)(x / Declare.tempo_length);
+				if (note != 0){
+					for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++){
+						Declare.melody[Declare.color_status].notes.add(0);	
+					}
+					Log.v("touch_move", "note: " + note);
+					Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
+					Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
 				}
-				Log.v("touch_move", "note: " + note);
-				Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
-				Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+				mX = x;
+				mY = y;
 			}
-			mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-			mX = x;
-			mY = y;
-		
-		}
-		
+			//调音状态
+			else{
+				Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
+				reDraw();
+			}
+		}		
 		
 	}
 
 	private void touch_up() {
-		if (candraw) {
-			mPath.lineTo(mX, mY);
-			mCanvas.drawPath(mPath, mPaint);
-			Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
-			mPath = null;// 重新置空
-			clearCanvas();
-			reDraw();	//重新将所有的曲线都画出来
+		if(Declare.menu_status == 1 && in_canvas){
+			if (can_draw) {	//画画状态结束
+				mPath.lineTo(mX, mY);
+				mCanvas.drawPath(mPath, mPaint);
+				Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
+				mPath = null;// 重新置空
+				clearCanvas();
+				reDraw();	//重新将所有的曲线都画出来
+			}
+			else {//调音状态结束
+				
+			}
 		}
 	}
 	
@@ -191,13 +212,7 @@ public class DrawLines extends View{
 	}
 
 	public void clearCanvas() {
-<<<<<<< HEAD
 		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
-=======
-		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
-				Bitmap.Config.ARGB_8888);
-		// 保存一次一次绘制出来的图形
->>>>>>> 72d4da91b2f828e35ece2309aa269f609d7af9e7
 		mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布
 	}
 	
