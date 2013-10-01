@@ -37,14 +37,14 @@ public class Declare extends Application {
 		color_status = 1;
 		undo_status = 1;
 		isSaved = true;
-		
+		melody = new Melody[5];
+		for(int i = 0; i< 5; i++){
+			melody[i] = new Melody(i);
+		}
 		drawSoundManager = new SoundManager();
 		playSoundManager = new SoundManager();
 		
-		melody = new Melody[5];
-		for(int i = 0; i < 5; i++){
-			melody[i] = new Melody(i);
-		}		
+		
 		LastEdit = new LinkedList<Melody>();
 		colors = new int[5];	//»­±ÊÑÕÉ«
 	}

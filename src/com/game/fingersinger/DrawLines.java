@@ -65,6 +65,7 @@ public class DrawLines extends View{
 	}
 	public DrawLines(Context context) {
 		super(context);
+		Log.v("In Constructor","here");
 		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
 				Bitmap.Config.ARGB_8888);
 		// 保存一次一次绘制出来的图形
@@ -145,7 +146,8 @@ public class DrawLines extends View{
 		if(candraw){
 			mPath.lineTo(mX, mY);
 			mCanvas.drawPath(mPath, mPaint);
-			Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
+			Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()-1); // 设置该段的结束标志
+			Log.v("stop size", "" +(Declare.melody[Declare.color_status].stops.size()-1));
 			mPath = null;// 重新置空
 			mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height, Bitmap.Config.ARGB_8888);
 			mCanvas.setBitmap(mBitmap);// 重新设置画布，相当于清空画布

@@ -24,10 +24,12 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
@@ -48,7 +50,7 @@ public class MainActivity extends Activity {
 	private Dialog onSaveDialog;
 	private DrawLines drawView;
 	private ImageView musicBar, tempoBar;
-	private ImageButton menuBtn, colorBtn, undoBtn;
+	private ImageButton menuBtn, colorBtn, undoBtn,pointer;
 	private EditText edit;
 	
 	@Override
@@ -126,6 +128,7 @@ public class MainActivity extends Activity {
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
+		pointer = (ImageButton)findViewById(R.id.pointer);
 		
 	    //设置按钮的监听 		
 		menuBtn.setOnClickListener(new OnClickListener() {  
@@ -188,6 +191,44 @@ public class MainActivity extends Activity {
 			}
 			
 		});
+		pointer.setOnTouchListener(new OnTouchListener(){
+			int mx,my;
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+			//	pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_button_pressed));
+				int event_action=event.getAction(); 
+				Log.v("Pointer","Action"+ event_action );
+				switch(event.getAction()) {  
+					case MotionEvent.ACTION_DOWN:   //按下
+						mx = (int) event.getRawX();  
+						my = (int) event.getRawY();  
+						if(my > Declare.screen_height - 50){
+					//		pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_pressdown));
+						}
+						break;
+	                case MotionEvent.ACTION_MOVE:    
+	                    mx = (int)(event.getRawX());    
+	                    my = (int) event.getRawY(); 
+	                    if(my > Declare.screen_height - 50){
+	                    	Log.v("Screen Height",""+Declare.screen_height);
+	                    	v.layout(mx - pointer.getWidth()/2, 0, mx + pointer.getWidth()/2, Declare.screen_height+20);    
+	                    	v.invalidate();
+	                    	drawView.drawPointerLine(mx);
+	                    }
+	                    break; 
+	                case MotionEvent.ACTION_UP:
+	                	mx = (int)(event.getRawX());    
+	                    my = (int) event.getRawY();
+	                    Log.v("mx",""+mx);
+	               // 	pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_unpress));
+	               // 	v.layout(mx - pointer.getWidth()/2, 0, mx + pointer.getWidth()/2, Declare.screen_height+20);    
+                    	v.invalidate();
+	                    break;     
+                }    
+				return false;
+			}
+		});
+	
 	} 
 
 	private void getDirPath() {
