@@ -2,6 +2,8 @@
 package com.game.fingersinger;
 
 
+import java.util.Iterator;
+
 import android.util.AttributeSet;
 import android.util.Log;
 import android.content.Context;
@@ -52,6 +54,8 @@ public class DrawLines extends View{
 	
 	public DrawLines(Context context) {
 		super(context);
+		Log.v("New Start", "------------------------------------------------------------------");
+		Log.v("Screen", "Width = " + Declare.screen_width+"," + Declare.screen_height);
 		mBitmap = Bitmap.createBitmap(Declare.screen_width, Declare.screen_height,
 				Bitmap.Config.ARGB_8888);
 		// 保存一次一次绘制出来的图形
@@ -100,43 +104,42 @@ public class DrawLines extends View{
 		
 		//menu_status == 1, 画笔状态
 		if (Declare.menu_status == 1 && in_canvas) {
-			// 可以新画一笔
-			can_draw = true;
-			if(x >= (Declare.melody[Declare.color_status].stops.get(Declare.melody[Declare.color_status].stops.size()))){
-				add_last_edit();     //保存之前的状态
-				if (note != 0){//已按下
-					for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++) {
-						Declare.melody[Declare.color_status].notes.add(0);	
-					}
-					Declare.melody[Declare.color_status].notes.set(tempoId, note);
-					Declare.melody[Declare.color_status].starts.add(tempoId);
-			//		Declare.drawSoundManager.playSound(noteId + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
-					Declare.isSaved = false;
-				}
-				mPath.moveTo(tempoId * Declare.tempo_length, y);
-				mX = x;
-				mY = y;
+			try_melody = 5;
+			can_draw = false;
+			
+			for(int i = 0; i < 5; i++ ){
+				if(tempoId >= 0 && tempoId <Declare.melody[i].notes.size() &&
+						noteId <= Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))+1 &&
+						noteId >= Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))-1 &&
+						Declare.color_status == Declare.melody[i].color){
+					add_last_edit();     //保存之前的状态
+					try_melody = i;
+					break;
+				}	
 			}
-			//调音
-			else {
+			if(try_melody == Declare.color_status){ // 按在一个音准点上，且该音准点的与当前颜色相同，调音
 				can_draw = false;	//设置为不可以新画的状态
-				//检测是否点到了某条线的某个音准点上
-				for(int i = 0; i < 5; i++ ){
-					if(tempoId >= 0 && tempoId <Declare.melody[i].notes.size() &&
-							noteId == Declare.getIndexOfSound((Integer)Declare.melody[i].notes.get(tempoId))){
-						add_last_edit();     //保存之前的状态
-						try_melody = i;
-						break;
+			}
+			else{	//没有落在音准点上，画线
+				// 可以新画一笔
+				if(Declare.melody[Declare.color_status].stops.size() == 0 || tempoId >= (Declare.melody[Declare.color_status].stops.get(Declare.melody[Declare.color_status].stops.size()-1))){
+					can_draw = true;
+					add_last_edit();     //保存之前的状态
+					if(Declare.melody[Declare.color_status].stops.size()!=0)
+						Log.v("Stops store", ""+(Declare.melody[Declare.color_status].stops.get(Declare.melody[Declare.color_status].stops.size()-1)));
+					if (note != 0){//已按下
+						for ( int i = Declare.melody[Declare.color_status].notes.size(); i <= tempoId; i++) {
+							Declare.melody[Declare.color_status].notes.add(0);	
+						}
+						Declare.melody[Declare.color_status].notes.set(tempoId, note);
+						Declare.melody[Declare.color_status].starts.add(tempoId);
+				//		Declare.drawSoundManager.playSound(noteId + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+						Declare.isSaved = false;
 					}
-					
+					mPath.moveTo(tempoId * Declare.tempo_length, y);
+					mX = x;
+					mY = y;
 				}
-<<<<<<< HEAD
-=======
-				Declare.melody[Declare.color_status].notes.set(tempoId, note);
-				Declare.melody[Declare.color_status].starts.add(tempoId);
-				Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
-				Declare.isSaved = false;
->>>>>>> de27fe012e3da67b7a79b067dddee514214e734b
 			}
 		}
 		//橡皮擦状态
@@ -157,7 +160,7 @@ public class DrawLines extends View{
 							}
 						}
 					}
-					clearCanvas();
+					
 					reDraw();
 					add_last_edit();
 					Declare.isSaved = false;
@@ -166,6 +169,7 @@ public class DrawLines extends View{
 			}
 			
 		}
+		Log.v("What is up at start", ""+Declare.melody[Declare.color_status].starts.size()+","+Declare.melody[Declare.color_status].stops.size());
 	}
 
 	private void touch_move(float x, float y) {	
@@ -181,20 +185,19 @@ public class DrawLines extends View{
 					}
 					Log.v("touch_move", "note: " + note);
 					Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
-					Declare.drawSoundManager.playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+					Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
+				
 				}
 				mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
 				mX = x;
 				mY = y;
 			}
 			//调音状态
-			else{
-				Declare.melody[Declare.color_status].notes.set(tempoId, note);//修改之前添加的音
-<<<<<<< HEAD
-				reDraw();
-=======
-				Declare.soundManager[Declare.color_status].playSound(Declare.getIndexOfSound(note) + Declare.color_status * 22, Declare.melody[Declare.color_status].voice);
->>>>>>> de27fe012e3da67b7a79b067dddee514214e734b
+			else if(!can_draw){
+				if(try_melody != 5){
+					Declare.melody[try_melody].notes.set(tempoId, note);//修改之前添加的音
+					reDraw();
+				}
 			}
 		}		
 		
@@ -205,14 +208,19 @@ public class DrawLines extends View{
 			if (can_draw) {	//画画状态结束
 				mPath.lineTo(mX, mY);
 				mCanvas.drawPath(mPath, mPaint);
-				Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()); // 设置下一段的开始标志
+				Declare.melody[Declare.color_status].stops.add(Declare.melody[Declare.color_status].notes.size()-1); // 设置该段的结束标志
+
+				Log.v("Stops add", ""+(Declare.melody[Declare.color_status].stops.size()));
 				mPath = null;// 重新置空
-				clearCanvas();
+				
 				reDraw();	//重新将所有的曲线都画出来
+				can_draw = false;
 			}
 			else {//调音状态结束
 				
 			}
+			Log.v("What is up at end", ""+Declare.melody[Declare.color_status].starts.size()+","+Declare.melody[Declare.color_status].stops.size());
+			
 		}
 	}
 	
@@ -232,7 +240,7 @@ public class DrawLines extends View{
 	 */
 	public void undo() {
 		clearCanvas();
-		Log.v("cannot redo", "" + Declare.LastEdit.size() + ", color = " + ((Melody)Declare.LastEdit.getLast()).color);
+		//Log.v("cannot redo", "" + Declare.LastEdit.size() + ", color = " + ((Melody)Declare.LastEdit.getLast()).color);
 		if (Declare.LastEdit.size()>0) {
 			Declare.melody[((Melody)Declare.LastEdit.getLast()).color] = new Melody((Melody)Declare.LastEdit.getLast());
 			
@@ -243,43 +251,70 @@ public class DrawLines extends View{
 		
 	}
 
-	
-	
-	
 	public void reDraw() {
-		int i,j;
-		Log.v("Here", "" + Declare.color_status);
+		int i,j,m;
+		clearCanvas();
+//		Log.v("Here", "" + Declare.color_status);
+		while(Declare.melody[Declare.color_status].starts.size() > Declare.melody[Declare.color_status].stops.size()){
+			Declare.melody[Declare.color_status].starts.remove(Declare.melody[Declare.color_status].starts.size()-1);
+			Log.v("What is up at reDraw --adjust starts", ""+Declare.melody[Declare.color_status].starts.size()+","+Declare.melody[Declare.color_status].stops.size());		
+		}
+		while(Declare.melody[Declare.color_status].starts.size() < Declare.melody[Declare.color_status].stops.size()){
+			Declare.melody[Declare.color_status].stops.remove(Declare.melody[Declare.color_status].stops.size()-1);
+			Log.v("What is up at reDraw --adjust stops", ""+Declare.melody[Declare.color_status].starts.size()+","+Declare.melody[Declare.color_status].stops.size());		
+		}
+//		if(Declare.melody[Declare.color_status].starts.get(Declare.melody[Declare.color_status].starts.size()-1) == 
+//				Declare.melody[Declare.color_status].starts.get(Declare.melody[Declare.color_status].starts.size()-1)){
+//			Declare.melody[Declare.color_status].starts.remove(Declare.melody[Declare.color_status].starts.size()-1);
+//			Declare.melody[Declare.color_status].stops.remove(Declare.melody[Declare.color_status].stops.size()-1);
+//			
+//		}
 		for (i = 0; i < 5; i++) {
 			dp = new DrawPath();
 			dp.paint.setColor(Declare.colors[i]);
-			for (j = 0; j < Declare.melody[i].notes.size(); j++) {
-				if (Declare.melody[i].notes.get(j) != 0) {
-					Log.v("Draw GET the start point", "" + j);
-					note1 = Declare.melody[i].notes.get(j);
-					tempoId1 = j;
-					dp.path.moveTo(j * Declare.tempo_length, Declare.melody[i].notes.get(j));
-					break;
+			if(Declare.melody[i].starts.size()!=Declare.melody[i].stops.size()){
+				Log.v("What is up", ""+Declare.melody[i].starts.size()+","+Declare.melody[i].stops.size());
+			}
+			if( Declare.melody[i].starts.size() == 0 )
+				continue;
+			Iterator<Integer> start_it  = Declare.melody[i].starts.iterator();
+			Iterator<Integer> stop_it = Declare.melody[i].stops.iterator(); 
+			while(start_it.hasNext()){	//遍历一种颜色的所有start
+				int start_at = (Integer)start_it.next();
+				int end_at = (Integer)stop_it.next(); //获得一段旋律的结束tempoId
+				Log.v("Color status" + Declare.color_status, "" + start_at+" , "+(end_at- start_at));
+				for (m = start_at; m < end_at; m++) {
+					if (Declare.melody[i].notes.get(m) != 0) {
+						Log.v("Draw GET the start point", "" + m);
+						note1 = Declare.melody[i].notes.get(m);
+						tempoId1 = m;
+						dp.path.moveTo(m * Declare.tempo_length, Declare.melody[i].notes.get(m));
+						mCanvas.drawRect(m * Declare.tempo_length - 3, Declare.melody[i].notes.get(m) - 3, m * Declare.tempo_length + 3, Declare.melody[i].notes.get(m) + 3, dp.paint);
+						break;
+					}
 				}
-			}
-			j++;
-			int lastnote = 0;
-			for (; j < Declare.melody[i].notes.size(); j++) {
-				note = Declare.melody[i].notes.get(j);
-				if (note != 0) {
-					Log.v("Draw notes","x = " + j * Declare.tempo_length + ", y = " + note);
-					lastnote = note;
-					mCanvas.drawRect(j * Declare.tempo_length - 5, note - 5, j * Declare.tempo_length + 5, note + 5, dp.paint);
-			//		dp.path.lineTo(j*tempo_length, note);
-					Log.v("Draw Link dots","x1 = " + (tempoId1) * Declare.tempo_length + ", x2 = " + ((j + tempoId1) / 2.0 * Declare.tempo_length));
-					dp.path.quadTo((tempoId1) * Declare.tempo_length, note1, (float) ((j + tempoId1) / 2.0 * Declare.tempo_length), (note + note1) / 2);
-					note1 = note;
-					tempoId1 = j;
+				m++;
+				int lastnote = 0;
+				for (; m < end_at; m++) {
+					note = Declare.melody[i].notes.get(m);
+					if (note != 0) {
+						Log.v("Draw notes","x = " + m * Declare.tempo_length + ", y = " + note);
+						lastnote = note;
+						mCanvas.drawRect(m * Declare.tempo_length - 3, note - 3, m * Declare.tempo_length + 3, note + 3, dp.paint);
+				//		dp.path.lineTo(j*tempo_length, note);
+						Log.v("Draw Link dots","x1 = " + (tempoId1) * Declare.tempo_length + ", x2 = " + ((m + tempoId1) / 2.0 * Declare.tempo_length));
+						dp.path.quadTo((tempoId1) * Declare.tempo_length, note1, (float) ((m + tempoId1) / 2.0 * Declare.tempo_length), (note + note1) / 2);
+						note1 = note;
+						tempoId1 = m;
+					}
 				}
+				if (lastnote != 0) {
+					dp.path.lineTo(m * Declare.tempo_length, lastnote);
+					mCanvas.drawRect(m * Declare.tempo_length - 3, lastnote - 3, m * Declare.tempo_length + 3, lastnote + 3, dp.paint);
+					
+				}
+				mCanvas.drawPath(dp.path, dp.paint);
 			}
-			if (lastnote != 0) {
-				dp.path.lineTo(j * Declare.tempo_length, lastnote);
-			}
-			mCanvas.drawPath(dp.path, dp.paint);
 		}
 		invalidate();// 刷新
 	}
