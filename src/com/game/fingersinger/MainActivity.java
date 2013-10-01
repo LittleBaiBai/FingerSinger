@@ -50,7 +50,8 @@ public class MainActivity extends Activity {
 	private Dialog onSaveDialog;
 	private DrawLines drawView;
 	private ImageView musicBar, tempoBar;
-	private ImageButton menuBtn, colorBtn, undoBtn,pointer;
+	private ImageButton menuBtn, colorBtn, undoBtn;
+	private ImageButton pointer;
 	private EditText edit;
 	
 	@Override
@@ -128,7 +129,7 @@ public class MainActivity extends Activity {
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
-		pointer = (ImageButton)findViewById(R.id.pointer);
+		pointer = (ImageButton) findViewById(R.id.pointer);
 		
 	    //设置按钮的监听 		
 		menuBtn.setOnClickListener(new OnClickListener() {  
@@ -200,6 +201,7 @@ public class MainActivity extends Activity {
 				Log.v("Pointer","Action"+ event_action );
 				switch(event.getAction()) {  
 					case MotionEvent.ACTION_DOWN:   //按下
+					//	drawView.moveCanvas();
 						mx = (int) event.getRawX();  
 						my = (int) event.getRawY();  
 						if(my > Declare.screen_height - 50){
@@ -213,7 +215,7 @@ public class MainActivity extends Activity {
 	                    	Log.v("Screen Height",""+Declare.screen_height);
 	                    	v.layout(mx - pointer.getWidth()/2, 0, mx + pointer.getWidth()/2, Declare.screen_height+20);    
 	                    	v.invalidate();
-	                    	drawView.drawPointerLine(mx);
+	                    	
 	                    }
 	                    break; 
 	                case MotionEvent.ACTION_UP:
