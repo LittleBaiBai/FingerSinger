@@ -23,6 +23,8 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View;
@@ -45,7 +47,7 @@ import android.widget.SeekBar;
 
 public class MainActivity extends Activity {
 
-	private String historyPath, audioPath, picturePath, tempPath;
+	private String historyPath, audioPath, picturePath;
 	private String fileName = "";
 	private String tempName = "";
 	private Dialog onSaveDialog;
@@ -57,15 +59,16 @@ public class MainActivity extends Activity {
 	private ImageButton menuBtn, colorBtn, undoBtn;
 	private ImageView pointer;
 	private EditText edit;
+	protected boolean inScrollArea;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//ÒşÈ¥±êÌâÀ¸£¨Ó¦ÓÃ³ÌĞòµÄÃû×Ö£©  
+		//éšå»æ ‡é¢˜æ ï¼ˆåº”ç”¨ç¨‹åºçš„åå­—ï¼‰  
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //ÒşÈ¥×´Ì¬À¸²¿·Ö(µç³ØµÈÍ¼±êºÍÒ»ÇĞĞŞÊÎ²¿·Ö)
+        //éšå»çŠ¶æ€æ éƒ¨åˆ†(ç”µæ± ç­‰å›¾æ ‡å’Œä¸€åˆ‡ä¿®é¥°éƒ¨åˆ†)
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //Éè¶¨µ÷ÕûÒôÁ¿ÎªÃ½ÌåÒôÁ¿,µ±ÔİÍ£²¥·ÅµÄÊ±ºòµ÷ÕûÒôÁ¿¾Í²»»áÔÙÄ¬ÈÏµ÷ÕûÁåÉùÒôÁ¿ÁË
+        //è®¾å®šè°ƒæ•´éŸ³é‡ä¸ºåª’ä½“éŸ³é‡,å½“æš‚åœæ’­æ”¾çš„æ—¶å€™è°ƒæ•´éŸ³é‡å°±ä¸ä¼šå†é»˜è®¤è°ƒæ•´é“ƒå£°éŸ³é‡äº†
 
         this.setContentView(R.layout.loading);
  
@@ -106,6 +109,7 @@ public class MainActivity extends Activity {
 		menuBtn.setOnClickListener(new OnClickListener() {  
 	        
 	        public void onClick(View v) {  
+	        	
 	            Log.v("Button","Click on Menu");
 	            if(Declare.menu_status == 1){
 	            	menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_eraser));
@@ -122,7 +126,7 @@ public class MainActivity extends Activity {
 				    
 				    changeVoice();
 				}
-				else {	//¼È¿ÉÄÜÊÇmenu_status=3£¨ÒôÁ¿£©, ÓÖ¿ÉÄÜmenu_status=4£¨²¥·Å£©
+				else {	//æ—¢å¯èƒ½æ˜¯menu_status=3ï¼ˆéŸ³é‡ï¼‰, åˆå¯èƒ½menu_status=4ï¼ˆæ’­æ”¾ï¼‰
 					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 				    voiceBarLayout.setVisibility(View.GONE);
 					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
@@ -182,12 +186,12 @@ public class MainActivity extends Activity {
 	        public void onClick(View v) {  
 	            Log.v("Button","Click on Undo");
 	            if (Declare.menu_status == 4) {
-	            	//ÔİÍ£
+	            	//æš‚åœ
 	            	undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_resume));
 	            	Declare.menu_status = 5;
 	            }
 	            else if (Declare.menu_status == 5) {
-	            	//²¥·Å
+	            	//æ’­æ”¾
 	            	undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
 	            	Declare.menu_status = 4;
 	            	playSong(Declare.pointerInMelody);
@@ -198,7 +202,62 @@ public class MainActivity extends Activity {
 	        }    
 	    }); 
 
-		pointer.setOnTouchListener(new PointerListener(this, pointer));
+		pointer.setOnTouchListener(new OnTouchListener() {
+			int mx,my;
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+			//	pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_button_pressed));
+				int event_action = event.getAction(); 
+				Log.v("Pointer","Action"+ event_action );
+				switch(event.getAction()) {  
+					case MotionEvent.ACTION_DOWN:   //âˆÂ¥Å“Â¬
+						Log.v("Press Down Pointer", "1");
+						//drawView.canvasMove();
+						mx = (int) event.getRawX();  
+						my = (int) event.getRawY();  
+						if(my > Declare.screen_height - 50){
+					//		pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_pressdown));
+						}
+						
+						break;
+	                case MotionEvent.ACTION_MOVE: 
+	               
+	                    mx = (int)(event.getRawX());    
+	                    my = (int) event.getRawY(); 
+	                    if(my > Declare.screen_height - Declare.pointer_unpress){
+	                    	Log.v("Screen Height",""+Declare.screen_height);
+	                    	v.layout(mx - pointer.getWidth()/2, 0, mx + pointer.getWidth()/2, Declare.screen_height);    
+	                    	v.invalidate();
+	                    	if(mx > Declare.screen_width - 100){
+	                    		Log.v("InScroll","right");
+	                    		//drawView.canvasMove();
+	                    //		try {
+						//			Thread.sleep(100);
+						//		} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+						///			e.printStackTrace();
+						//		}
+	                    		inScrollArea = true;
+	                    	}
+	                    	else{
+	                    		inScrollArea = false;
+	                    	}
+	                    }
+	                    break; 
+	                case MotionEvent.ACTION_UP:
+	                	mx = (int)(event.getRawX());    
+	                    my = (int) event.getRawY();
+	                    inScrollArea = false;
+	                    Log.v("mx",""+mx);
+	               // 	pointer.setImageDrawable(getResources().getDrawable(R.drawable.pointer_unpress));
+	                	v.layout(mx - pointer.getWidth()/2, 0, mx + pointer.getWidth()/2, Declare.screen_height);    
+                    	v.invalidate();
+	                    break;     
+                }    
+				return true;
+			}
+		});
 		
 	} 
 
@@ -213,19 +272,19 @@ public class MainActivity extends Activity {
 		audioPath = dirPath + "/FingerSinger/output_audio/";
 		picturePath = dirPath + "/FingerSinger/output_picture";
 		
-		File f1 = new File(this.historyPath); //strPathÎªÂ·¾¶
+		File f1 = new File(this.historyPath); //strPathä¸ºè·¯å¾„
 		if (!f1.exists()) {
-			f1.mkdirs();	//½¨Á¢ÎÄ¼ş¼Ğ 
+			f1.mkdirs();	//å»ºç«‹æ–‡ä»¶å¤¹ 
 		}
 		
-		File f2 = new File(this.audioPath); //strPathÎªÂ·¾¶
+		File f2 = new File(this.audioPath); //strPathä¸ºè·¯å¾„
 		if (!f2.exists()) {
-			f2.mkdirs();	//½¨Á¢ÎÄ¼ş¼Ğ 
+			f2.mkdirs();	//å»ºç«‹æ–‡ä»¶å¤¹ 
 		}
 		
-		File f3 = new File(this.picturePath); //strPathÎªÂ·¾¶
+		File f3 = new File(this.picturePath); //strPathä¸ºè·¯å¾„
 		if (!f3.exists()) {
-			f3.mkdirs();	//½¨Á¢ÎÄ¼ş¼Ğ
+			f3.mkdirs();	//å»ºç«‹æ–‡ä»¶å¤¹
 		}
 	}	
 	
@@ -234,7 +293,7 @@ public class MainActivity extends Activity {
 		RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 	    voiceBarLayout.setVisibility(View.GONE);
 	    
-		// ÔÚ´ËËµÃ÷Ò»ÏÂ£¬MenuÏàµ±ÓÚÒ»¸öÈİÆ÷£¬¶øMenuItemÏàµ±ÓÚÈİÆ÷ÖĞÈİÄÉµÄ¶«Î÷ 
+		// åœ¨æ­¤è¯´æ˜ä¸€ä¸‹ï¼ŒMenuç›¸å½“äºä¸€ä¸ªå®¹å™¨ï¼Œè€ŒMenuItemç›¸å½“äºå®¹å™¨ä¸­å®¹çº³çš„ä¸œè¥¿ 
 		switch(item.getItemId()) { 
 		case R.id.action_playCurrent: 
 			item.setEnabled(false);
@@ -262,11 +321,11 @@ public class MainActivity extends Activity {
 				edit.setSingleLine();
 				edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
 			
-				//ÌáĞÑÓÃ»§×ö±£´æµÄÊÂÇéµÄÒ»¸ö¿ò
-				onSaveDialog = new AlertDialog.Builder(MainActivity.this).setTitle("±£´æ")
-					.setMessage("ÏëÒ»¸ö¿¿Æ×µÄÃû×Ö°É£½ £½¡¢").setView(edit)
-					//ÉèÖÃ°´Å¥
-					.setPositiveButton("±£´æ", new DialogInterface.OnClickListener(){  
+				//æé†’ç”¨æˆ·åšä¿å­˜çš„äº‹æƒ…çš„ä¸€ä¸ªæ¡†
+				onSaveDialog = new AlertDialog.Builder(MainActivity.this).setTitle("ä¿å­˜")
+					.setMessage("æƒ³ä¸€ä¸ªé è°±çš„åå­—å§ï¼ ï¼ã€").setView(edit)
+					//è®¾ç½®æŒ‰é’®
+					.setPositiveButton("ä¿å­˜", new DialogInterface.OnClickListener(){  
 						public void onClick(DialogInterface dialog, int which) {
 							fileName = edit.getText().toString();
 							//Log.v("debuga", "fileName: " + fileName);
@@ -274,17 +333,17 @@ public class MainActivity extends Activity {
 							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
 								Log.v("debuga", "file exists()");
 								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
-									.setTitle("±£´æÊ§°Ü").setMessage("ÓĞÖØÃû")
-									.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){
+									.setTitle("ä¿å­˜å¤±è´¥").setMessage("æœ‰é‡å")
+									.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){
 										public void onClick(DialogInterface dialog, int which) {
-											//²»×öÈÎºÎ²Ù×÷
+											//ä¸åšä»»ä½•æ“ä½œ
 											edit.setVisibility(View.GONE);
 										}
 									}).create();
 								temp.show();
 							}
 							else {
-								//±£´æÓ¦¸Ã×öµÄÊÂ
+								//ä¿å­˜åº”è¯¥åšçš„äº‹
 								try {
 									onSave();
 								} catch (IOException e) {
@@ -293,7 +352,7 @@ public class MainActivity extends Activity {
 								}
 //								
 //								fileName = "";
-//								//Çå¿Õ»­²¼Òª×öµÄÊÂ£¡£¡
+//								//æ¸…ç©ºç”»å¸ƒè¦åšçš„äº‹ï¼ï¼
 //								Log.v("clearCanvas", "inside");
 //								drawView.clearCanvas();
 															
@@ -306,7 +365,7 @@ public class MainActivity extends Activity {
 			}
 
 			else {
-				//±£´æÓ¦¸Ã×öµÄÊÂ
+				//ä¿å­˜åº”è¯¥åšçš„äº‹
 				try {
 					onSave();
 				} catch (IOException e) {
@@ -314,7 +373,7 @@ public class MainActivity extends Activity {
 					e.printStackTrace();
 				}
 //				fileName = "";
-//				//Çå¿Õ»­²¼Òª×öµÄÊÂ£¡£¡
+//				//æ¸…ç©ºç”»å¸ƒè¦åšçš„äº‹ï¼ï¼
 //				Log.v("clearCanvas", "else");
 //				drawView.clearCanvas();
 				
@@ -322,24 +381,24 @@ public class MainActivity extends Activity {
 			break; 
 		case R.id.action_history:
 			if (Declare.isSaved == false) {
-				Dialog isSaveDialog = new AlertDialog.Builder(MainActivity.this).setMessage("µ±Ç°ÇúÄ¿ÊÇ·ñ±£´æ£¿")
-					//ÉèÖÃ°´Å¥
-					.setPositiveButton("±£´æ", new DialogInterface.OnClickListener(){ 
+				Dialog isSaveDialog = new AlertDialog.Builder(MainActivity.this).setMessage("å½“å‰æ›²ç›®æ˜¯å¦ä¿å­˜ï¼Ÿ")
+					//è®¾ç½®æŒ‰é’®
+					.setPositiveButton("ä¿å­˜", new DialogInterface.OnClickListener(){ 
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							onSaveDialog.show();
 							Declare.isSaved = true;
-							//µ÷ÎÄ¼şÏµÍ³£¬ÕÒ³öÎÄ¼ş
+							//è°ƒæ–‡ä»¶ç³»ç»Ÿï¼Œæ‰¾å‡ºæ–‡ä»¶
 							showFileList();
 						}  
 					})
-					.setNegativeButton("²»±£´æ", new DialogInterface.OnClickListener() {
+					.setNegativeButton("ä¸ä¿å­˜", new DialogInterface.OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							Declare.isSaved = true;
-							//µ÷ÎÄ¼şÏµÍ³£¬ÕÒ³öÎÄ¼ş
+							//è°ƒæ–‡ä»¶ç³»ç»Ÿï¼Œæ‰¾å‡ºæ–‡ä»¶
 							showFileList();
 						}
 					})
@@ -347,12 +406,12 @@ public class MainActivity extends Activity {
 				isSaveDialog.show();
 			}
 			else {
-				//µ÷ÎÄ¼şÏµÍ³£¬ÕÒ³öÎÄ¼ş
+				//è°ƒæ–‡ä»¶ç³»ç»Ÿï¼Œæ‰¾å‡ºæ–‡ä»¶
 				showFileList();
 			}
 			break; 
 		case R.id.action_import: 
-			Toast.makeText(MainActivity.this, "´Ë¹¦ÄÜÉĞÎ´Íê³É£¬¾´ÇëÆÚ´ı", Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "æ­¤åŠŸèƒ½å°šæœªå®Œæˆï¼Œæ•¬è¯·æœŸå¾…", Toast.LENGTH_SHORT).show();
 			break; 
 		case R.id.action_export:
 			item.getSubMenu();
@@ -364,11 +423,11 @@ public class MainActivity extends Activity {
 				edit.setSingleLine();
 				edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
 			
-				//ÌáĞÑÓÃ»§×ö±£´æµÄÊÂÇéµÄÒ»¸ö¿ò
-				Dialog onNameDialog = new AlertDialog.Builder(MainActivity.this).setTitle("µÃÏÈ±£´æ")
-					.setMessage("ÏëÒ»¸ö¿¿Æ×µÄÃû×Ö°É£½ £½¡¢").setView(edit)
-					//ÉèÖÃ°´Å¥
-					.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){  
+				//æé†’ç”¨æˆ·åšä¿å­˜çš„äº‹æƒ…çš„ä¸€ä¸ªæ¡†
+				Dialog onNameDialog = new AlertDialog.Builder(MainActivity.this).setTitle("å¾—å…ˆä¿å­˜")
+					.setMessage("æƒ³ä¸€ä¸ªé è°±çš„åå­—å§ï¼ ï¼ã€").setView(edit)
+					//è®¾ç½®æŒ‰é’®
+					.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){  
 						public void onClick(DialogInterface dialog, int which) {
 							fileName = edit.getText().toString();
 							//Log.v("debuga", "fileName: " + fileName);
@@ -376,17 +435,17 @@ public class MainActivity extends Activity {
 							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
 								Log.v("debuga", "file exists()");
 								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
-									.setTitle("±£´æÊ§°Ü").setMessage("ÓĞÖØÃû")
-									.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){
+									.setTitle("ä¿å­˜å¤±è´¥").setMessage("æœ‰é‡å")
+									.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){
 										public void onClick(DialogInterface dialog, int which) {
-											//²»×öÈÎºÎ²Ù×÷
+											//ä¸åšä»»ä½•æ“ä½œ
 											edit.setVisibility(View.GONE);
 										}
 									}).create();
 								temp.show();
 							}
 							else {
-								//±£´æÓ¦¸Ã×öµÄÊÂ
+								//ä¿å­˜åº”è¯¥åšçš„äº‹
 								try {
 									onSave();
 									recordSong();
@@ -396,7 +455,7 @@ public class MainActivity extends Activity {
 								}
 								
 								fileName = "";
-								//Çå¿Õ»­²¼Òª×öµÄÊÂ£¡£¡
+								//æ¸…ç©ºç”»å¸ƒè¦åšçš„äº‹ï¼ï¼
 								drawView.clearCanvas();
 															
 							}
@@ -408,7 +467,7 @@ public class MainActivity extends Activity {
 
 			break;
 		case R.id.action_export_picture:
-			Toast.makeText(MainActivity.this, "´Ë¹¦ÄÜÉĞÎ´Íê³É£¬¾´ÇëÆÚ´ı", Toast.LENGTH_SHORT).show();
+			Toast.makeText(MainActivity.this, "æ­¤åŠŸèƒ½å°šæœªå®Œæˆï¼Œæ•¬è¯·æœŸå¾…", Toast.LENGTH_SHORT).show();
 			break;
 		default:
 			Log.v("debuga", "menu_id: " + item.getItemId());
@@ -416,14 +475,13 @@ public class MainActivity extends Activity {
 		} 
 		return true;  
 	}  
-
 	
 	private void recordSong() {
 		mediaRecord = new MediaRecorder();
-		//mediaRecord.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	//ÉèÖÃÒôÆµÔ´
-		mediaRecord.setAudioSource(MediaRecorder.AudioSource.DEFAULT);	//ÉèÖÃÒôÆµÔ´
-		mediaRecord.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);	//ÉèÖÃÒôÆµÊä³ö¸ñÊ½
-		mediaRecord.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);	//ÉèÖÃÒôÆµ±àÂë
+		//mediaRecord.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	//è®¾ç½®éŸ³é¢‘æº
+		mediaRecord.setAudioSource(MediaRecorder.AudioSource.DEFAULT);	//è®¾ç½®éŸ³é¢‘æº
+		mediaRecord.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);	//è®¾ç½®éŸ³é¢‘è¾“å‡ºæ ¼å¼
+		mediaRecord.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);	//è®¾ç½®éŸ³é¢‘ç¼–ç 
 		
 		mediaRecord.setOutputFile(audioPath + "/" + fileName + ".mp3");
 		try {
@@ -441,15 +499,14 @@ public class MainActivity extends Activity {
 		mediaRecord.release();
 	}
 
-	
 	private void loadFromHistory() {		
 		try{
-			//´ÓÎÄ¼şÖĞ»Ö¸´
+			//ä»æ–‡ä»¶ä¸­æ¢å¤
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(historyPath + "/" + fileName + ".psong"));
 			Declare.melody = (Melody[])in.readObject();
 			in.close();
 			
-			//ÖØ»­»­²¼
+			//é‡ç”»ç”»å¸ƒ
 			drawView.clearCanvas();
 			drawView.reDraw();
 			
@@ -465,19 +522,19 @@ public class MainActivity extends Activity {
 		ListView listview = (ListView)this.findViewById(R.id.list_view);
 		List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
 		listview.setBackgroundColor(Color.GRAY);
-		File f = new File(this.historyPath); //strPathÎªÂ·¾¶
-		//File f = new File(Environment.getRootDirectory().getPath()); //strPathÎªÂ·¾¶
+		File f = new File(this.historyPath); //strPathä¸ºè·¯å¾„
+		//File f = new File(Environment.getRootDirectory().getPath()); //strPathä¸ºè·¯å¾„
 
 		//Log.v("debuga", f.getPath());
 		if (!(f.exists())) {
 			Log.v("debuga", "not exists");
 			Dialog dialog = new AlertDialog.Builder(MainActivity.this)  
-				//ÉèÖÃ¶Ô»°¿òÒªÏÔÊ¾µÄÏûÏ¢  
-				.setMessage("ÎŞÀúÊ·ÇúÄ¿")  
-				//ÉèÖÃ°´Å¥
-				.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){  
+				//è®¾ç½®å¯¹è¯æ¡†è¦æ˜¾ç¤ºçš„æ¶ˆæ¯  
+				.setMessage("æ— å†å²æ›²ç›®")  
+				//è®¾ç½®æŒ‰é’®
+				.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){  
 					public void onClick(DialogInterface dialog, int which) {  
-						//ºÃÏñÊ²Ã´¶¼²»ÓÃ¸É
+						//å¥½åƒä»€ä¹ˆéƒ½ä¸ç”¨å¹²
 					}  
 				}).create();
 			dialog.show();
@@ -486,12 +543,12 @@ public class MainActivity extends Activity {
 			String[] file_list = f.list(); //String[] 
 			if (file_list.length == 0) {
 				Dialog dialog = new AlertDialog.Builder(MainActivity.this)  
-					//ÉèÖÃ¶Ô»°¿òÒªÏÔÊ¾µÄÏûÏ¢  
-					.setMessage("ÎŞÀúÊ·ÇúÄ¿")  
-					//ÉèÖÃ°´Å¥
-					.setPositiveButton("È·¶¨", new DialogInterface.OnClickListener(){  
+					//è®¾ç½®å¯¹è¯æ¡†è¦æ˜¾ç¤ºçš„æ¶ˆæ¯  
+					.setMessage("æ— å†å²æ›²ç›®")  
+					//è®¾ç½®æŒ‰é’®
+					.setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener(){  
 						public void onClick(DialogInterface dialog, int which) {  
-							//ºÃÏñÊ²Ã´¶¼²»ÓÃ¸É
+							//å¥½åƒä»€ä¹ˆéƒ½ä¸ç”¨å¹²
 						}  
 					}).create();
 				dialog.show();
@@ -525,9 +582,9 @@ public class MainActivity extends Activity {
 				@SuppressWarnings("unchecked")
 				HashMap<String, String> tem = (HashMap<String, String>)lv.getItemAtPosition(arg2);
 				tempName = tem.get("name");
-				Dialog isDeleteDialog = new AlertDialog.Builder(MainActivity.this).setMessage("ÊÇ·ñÉ¾³ı±¾ÇúÄ¿£¿")
-						//ÉèÖÃ°´Å¥
-						.setPositiveButton("É¾ÁË°É", new DialogInterface.OnClickListener(){ 
+				Dialog isDeleteDialog = new AlertDialog.Builder(MainActivity.this).setMessage("æ˜¯å¦åˆ é™¤æœ¬æ›²ç›®ï¼Ÿ")
+						//è®¾ç½®æŒ‰é’®
+						.setPositiveButton("åˆ äº†å§", new DialogInterface.OnClickListener(){ 
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
@@ -535,11 +592,11 @@ public class MainActivity extends Activity {
 								f.delete();
 							}  
 						})
-						.setNegativeButton("²»ÒªÉ¾", new DialogInterface.OnClickListener() {
+						.setNegativeButton("ä¸è¦åˆ ", new DialogInterface.OnClickListener() {
 							
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								//ºÃÏñÊ²Ã´¶¼²»ÓÃ×ö
+								//å¥½åƒä»€ä¹ˆéƒ½ä¸ç”¨åš
 							}
 						})
 						.setCancelable(true).create();
@@ -562,9 +619,9 @@ public class MainActivity extends Activity {
 	}
 
 	private void onSave() throws IOException {
-		File f = new File(this.historyPath); //strPathÎªÂ·¾¶
+		File f = new File(this.historyPath); //strPathä¸ºè·¯å¾„
 		if (!f.exists()) {
-			f.mkdirs();	//½¨Á¢ÎÄ¼ş¼Ğ 
+			f.mkdirs();	//å»ºç«‹æ–‡ä»¶å¤¹ 
 			Log.v("debug", "mkdir~");
 			Log.v("debug", "f.exists(): " + f.getPath() + " " + f.exists());
 		}
@@ -599,7 +656,7 @@ public class MainActivity extends Activity {
 				end = temp;
 			}
 		}
-		Log.v("playSong", "before for loop£º" + start + "/" + end);
+		Log.v("playSong", "before for loopï¼š" + start + "/" + end);
 		for (int i = start; i < end; i++) {
 			for (int j = 0; j < 5; j++) {
 				if (Declare.melody[j].notes.isEmpty()) continue;
