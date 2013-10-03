@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
 import android.util.Log;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,10 +26,12 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
@@ -57,6 +62,10 @@ public class MainActivity extends Activity {
 	private ImageButton menuBtn, colorBtn, undoBtn;
 	private ImageView pointer;
 	private EditText edit;
+	protected boolean inScrollArea;
+	public int inScroll;
+	public float mX = 0, mY = 0;
+	protected boolean validClick;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +77,7 @@ public class MainActivity extends Activity {
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
         this.setContentView(R.layout.loading);
-
+   //     new Thread(new moveCanvasThread()).start();
         getDirPath();   
        	initView(); 
 
@@ -95,14 +104,15 @@ public class MainActivity extends Activity {
 
 		LinearLayout drawLayout = (LinearLayout) findViewById(R.id.view_draw);
 		//drawLayout.setLayoutParams(new LayoutParams())
-		drawView = new DrawLines(this);
+		pointer = (ImageView)findViewById(R.id.pointer);
+		drawView = new DrawLines(this, pointer);
 		drawView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));  
 		drawLayout.addView(drawView);
 
 		menuBtn = (ImageButton) findViewById(R.id.button_menu);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
-		pointer = (ImageView)findViewById(R.id.pointer);
+		
 		
 		menuBtn.setOnClickListener(new OnClickListener() {  
 	        
@@ -155,6 +165,8 @@ public class MainActivity extends Activity {
 	        
 	        public void onClick(View v) {  
 	            Log.v("Button","Click on Color");
+	            Declare.menu_status = 1;
+	            menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 	            if (Declare.color_status == 0) {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_yellow));
 					Declare.color_status = 1;
@@ -198,9 +210,82 @@ public class MainActivity extends Activity {
 	            }
 	        }    
 	    }); 
-
-		pointer.setOnTouchListener(new PointerListener(this, pointer));
+		pointer.setOnTouchListener(new OnTouchListener(){
+			int x,y;
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				int event_action=event.getAction(); 
+				int l = 0;
+				x = (int) event.getRawX();  
+				y = (int) event.getRawY();  
+				
+				Log.v("Pointer","Action"+ event_action );
 		
+				switch(event_action) {  
+					case MotionEvent.ACTION_DOWN:   //按下
+						Log.v("Press Down Pointer","y = "+y+""+(Declare.screen_height - Declare.pointer_unpress));
+						if(y > Declare.screen_height - Declare.pointer_unpress){
+							validClick = true;
+							Declare.pointerInScreen = x;
+						}
+						break;
+	                case MotionEvent.ACTION_MOVE: 
+	                	if(!validClick)
+	                		break;
+                    	Log.v("Move the pointer","2");
+                    	
+                    	
+                    	if(x < 100 ){
+                    		l = (int) (x - pointer.getWidth()/2 < Declare.button_menu_horizontal ? Declare.button_menu_horizontal:x - pointer.getWidth()/2);
+                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
+                        	v.invalidate();
+                        	Declare.pointerInScreen = l;
+                    		Log.v("InScroll","left");
+                    		if(mX >= x){
+                    			Declare.melody_start -=10;
+                    			drawView.reDraw();
+                    		}
+                    		
+                    	}	 
+                    	else if(x > Declare.screen_width - 200 ){
+                    		l = (int) (x + pointer.getWidth()/2 > (Declare.screen_width-Declare.button_color_horizontal)? (Declare.screen_width-Declare.button_color_horizontal):x - pointer.getWidth()/2);
+                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
+                        	v.invalidate();
+                        	Declare.pointerInScreen = l;
+                    		Log.v("InScroll","right");
+                    		if(mX <= x){
+                    			Declare.melody_start +=10;
+                    			drawView.reDraw();
+                    		}
+                    	}
+                    	else{
+                    		v.layout( x - pointer.getWidth()/2 , 0, x + pointer.getWidth()/2, Declare.screen_height);    
+                        	v.invalidate();
+                        	Declare.pointerInScreen = x;
+                    	}
+                    		
+                    	
+	                    break; 
+	                case MotionEvent.ACTION_UP:
+	                	validClick = false;
+	                	Log.v("MelodyStart", ""+Declare.melody_start);
+//	                	if(x < 100 ){
+//                    		l = (int) (x - pointer.getWidth()/2 < Declare.button_menu_horizontal ? Declare.button_menu_horizontal:x - pointer.getWidth()/2);
+//                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
+//                        	v.invalidate();
+//	                	}
+//	                	v.layout(x - pointer.getWidth()/2, 0, x + pointer.getWidth()/2, Declare.screen_height);    
+//                    	v.invalidate();
+//                    	validClick = false;
+//	                    break;     
+	                }    
+					mX = x;
+					mY = y;
+					return true;
+			}
+		});
+
 	} 
 
 	private void getDirPath() {
@@ -666,6 +751,39 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onStop();
 	}
+	int left = 10;
+	protected static final int GUIUPDATEIDENTIFIER = 0x101; 
+	Handler myHandler = new Handler() {
+        public void handleMessage(Message msg) { 
+             switch (msg.what) { 
+                  case GUIUPDATEIDENTIFIER: 
+                	  Log.v("get a message", "" + left);
+                	  Declare.moveCanvas = true;
+              //  	  drawView.canvasMove();
+              //         pointer.layout(left+10, 0, left + 60, Declare.screen_height);
+                 //      left += 10;
+                       break; 
+             } 
+             super.handleMessage(msg); 
+        } 
+   };
+	public class moveCanvasThread implements Runnable {
 
+		@Override
+		public void run() {
+	        while (!Thread.currentThread().isInterrupted()) {  
+	             
+	             Message message = new Message(); 
+	             message.what = GUIUPDATEIDENTIFIER; 
+	             MainActivity.this.myHandler.sendMessage(message); 
+	             try { 
+	                  Thread.sleep((long) (Declare.speed*500));  
+	             } catch (InterruptedException e) { 
+	                  Thread.currentThread().interrupt(); 
+	             } 
+	        } 
+	   } 
+
+	}
 	
 }

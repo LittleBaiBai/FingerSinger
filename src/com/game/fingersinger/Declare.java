@@ -20,6 +20,7 @@ public class Declare extends Application {
 	public static int[] colors;
 	public static int tempo_length;
 	public static float speed;
+	public static int melody_start;
 	
 	public static float button_menu_vertical;
 	public static float button_menu_horizontal;
@@ -38,6 +39,7 @@ public class Declare extends Application {
 	public static float pointer_unpress;
 	public static float pointer_stick;
 	public static float pointer_dx;
+	public static boolean moveCanvas;
 	
 	
 	public Declare(){
@@ -47,7 +49,8 @@ public class Declare extends Application {
 		isSaved = true;
 		tempo_length = 40;
 		speed = (float)0.8;
-		
+		moveCanvas = false;
+		melody_start = 0;
 		soundManager = new SoundManager[5];
 		
 		pointerInScreen = 70;
