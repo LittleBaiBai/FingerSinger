@@ -38,4 +38,14 @@ public class ScaleView extends View{
 		
 	}
 	
+//	protected void reDraw(Canvas canvas, int start) {
+//
+//		float x = Declare.tempo_length + start;
+//		while (x < Declare.screen_width - Declare.button_color_horizontal) {
+//			//canvas.drawLine(x, Declare.scale_start_x_y, x, Declare.scale_start_x_y + Declare.scale_length_vertical, Declare.scale_start_x_y + Declare.scale_length_vertical);
+//			canvas.drawRect(x, Declare.scale_start_x_y, x + 3, Declare.scale_start_x_y + Declare.scale_length_vertical, mPaint);
+//			x += Declare.tempo_length;
+//		}
+//	}
+	
 }
