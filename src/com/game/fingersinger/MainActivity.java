@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -256,7 +257,7 @@ public class MainActivity extends Activity {
                     		l = (int) (x - pointer.getWidth()/2 < Declare.button_menu_horizontal ? Declare.button_menu_horizontal:x - pointer.getWidth()/2);
                     		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
                         	v.invalidate();
-                        	Declare.pointerInScreen = 0;
+                        	Declare.pointerInScreen = (int) Declare.button_menu_horizontal;                        	
                     		Log.v("InScroll","left");
                     		if(mX >= x){
                     			Declare.melody_start -=20;
@@ -270,19 +271,19 @@ public class MainActivity extends Activity {
                     		l = (int) (x + pointer.getWidth()/2 > (Declare.screen_width-Declare.button_color_horizontal)? (Declare.screen_width-Declare.button_color_horizontal - pointer.getWidth()/2):x - pointer.getWidth()/2);
                     		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
                         	v.invalidate();
-                        	Declare.pointerInScreen = (int) (l - Declare.button_menu_horizontal);
+                        	Declare.pointerInScreen = (int) l;
                     		Log.v("InScroll","right");
                     		if(mX <= x){
-                    			Declare.melody_start +=20;
+                    			Declare.melody_start += 20;
                     			drawView.reDraw();
-                    			Declare.melody_start +=20;
+                    			Declare.melody_start += 20;
                     			drawView.reDraw();
                     		}
                     	}
                     	else{
                     		v.layout( x - pointer.getWidth()/2 , 0, x + pointer.getWidth()/2, Declare.screen_height);    
                         	v.invalidate();
-                        	Declare.pointerInScreen = x;
+                        	Declare.pointerInScreen = x - pointer.getWidth()/2;
                     	}
                     		
                     	
@@ -353,7 +354,7 @@ public class MainActivity extends Activity {
 			playCurrentThr = new Thread(new Runnable(){			
 				@Override
 				public void run() {
-					playSong((Declare.pointerInScreen + Declare.melody_start - (int)Declare.button_menu_horizontal) / Declare.tempo_length);  				
+					playSong((Declare.pointerInScreen + Declare.melody_start) / Declare.tempo_length);  				
 				}
 			});
 			playCurrentThr.start();
@@ -715,14 +716,14 @@ public class MainActivity extends Activity {
 		for (int i = 0; i < 5; i++) {
 			Log.v("playSong", "color: " + i + " size:" + Declare.melody[i].stops.size());
 			if (Declare.melody[i].stops.size() == 0) continue;
-			int temp = Declare.melody[i].stops.get(Declare.melody[i].stops.size() - 1) - 1;
+			int temp = Declare.melody[i].stops.get(Declare.melody[i].stops.size() - 1);
 			if (temp > end) {
 				end = temp;
 			}
 		}
 		Log.v("playSong", "before for loop：" + start + "/" + end);
-		if (start < Declare.melody_start) {
-			Declare.melody_start = start;
+		if (start * Declare.tempo_length < Declare.melody_start) {
+			Declare.melody_start = start * Declare.tempo_length;
 			Message message = new Message(); 
 	        message.what = MOVECANVASTOSTART;                    
 	        myHandler.sendMessage(message);
@@ -730,7 +731,7 @@ public class MainActivity extends Activity {
 		for (int i = start; i <= end; i++) {
 			for (int j = 0; j < 5; j++) {
 				if (Declare.melody[j].notes.isEmpty()) continue;
-				if (Declare.melody[j].stops.get(Declare.melody[j].stops.size() - 1) - 1 < i) continue;
+				if (Declare.melody[j].stops.get(Declare.melody[j].stops.size() - 1) < i) continue;
 				int note = Declare.melody[j].notes.get(i);
 				Log.v("playSong", start + "/" + end + " note: " + note);
 				if (Declare.menu_status == 5) {
@@ -809,6 +810,7 @@ public class MainActivity extends Activity {
 	protected static final int PLAYRESUME = 0x103;
 	protected static final int MOVEPOINTER = 0x104;
 	protected static final int MOVECANVASTOSTART = 0x105;
+	@SuppressLint("HandlerLeak")
 	Handler myHandler = new Handler() {
         public void handleMessage(Message msg) { 
              switch (msg.what) { 
@@ -817,10 +819,13 @@ public class MainActivity extends Activity {
             	 menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
             	 Declare.menu_status = 1;
             	 Toast.makeText(MainActivity.this, R.string.prompt_stop_play, Toast.LENGTH_SHORT).show();
+            	 Declare.pointerInScreen = (int) Declare.button_menu_horizontal;
+            	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
             	 break;
              case PLAYPAUSE:
             	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_resume));
             	 Declare.menu_status = 5;
+            	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
             	 break; 
              case PLAYRESUME:
             	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
@@ -828,7 +833,7 @@ public class MainActivity extends Activity {
             	 playCurrentThr = new Thread(new Runnable(){			
      				@Override
      				public void run() {
-     					playSong(Declare.pointerInScreen + Declare.melody_start - (int)Declare.button_menu_horizontal);    			
+     					playSong((Declare.pointerInScreen + Declare.melody_start) / Declare.tempo_length);    			
      				}
      			 });
      			 playCurrentThr.start();
@@ -838,25 +843,21 @@ public class MainActivity extends Activity {
             	 if (pointerInScreen < Declare.screen_width - 200) {
             		 Animation  animation = new TranslateAnimation(pointerInScreen - Declare.pointer_unpress/2, (pointerInScreen + Declare.tempo_length - Declare.pointer_unpress/2), 0, 0);
                      animation.setDuration((long) (500 * Declare.speed));
-                     animation.setFillAfter(true);
+                     animation.setFillAfter(false);
                  	 pointer.startAnimation(animation);
-                 	 Declare.pointerInScreen = (int)(pointerInScreen + Declare.tempo_length - Declare.pointer_unpress/2);
+                 	 Declare.pointerInScreen = (int)(pointerInScreen - Declare.pointer_unpress/2);
          		 }
                  else {
-                	 Animation  animation = new TranslateAnimation(pointerInScreen - Declare.pointer_unpress/2, (pointerInScreen + Declare.tempo_length - Declare.pointer_unpress/2), 0, 0);
+                	 Animation animation = new TranslateAnimation(pointerInScreen - Declare.pointer_unpress/2, (pointerInScreen - Declare.pointer_unpress/2), 0, 0);
                      animation.setDuration((long) (500 * Declare.speed));
-                     animation.setFillAfter(true);
+                     animation.setFillAfter(false);
                  	 pointer.startAnimation(animation);
                  	 Declare.pointerInScreen = (int)(pointerInScreen - Declare.pointer_unpress/2);
                  	 Log.v("InScroll","right");
-                 	 Declare.melody_start +=10;
+                 	 Declare.melody_start += 20;
                  	 drawView.reDraw();
-                 	 Declare.melody_start +=10;
+                 	 Declare.melody_start += 20;
                  	 drawView.reDraw();		
-                 	 Declare.melody_start +=10;
-                 	 drawView.reDraw();		
-                 	 Declare.melody_start +=10;
-                 	 drawView.reDraw();
                  }
                  break;
              case MOVECANVASTOSTART:
@@ -865,5 +866,37 @@ public class MainActivity extends Activity {
              super.handleMessage(msg); 
         } 
     };
+    
+    @Override 
+    public boolean onKeyDown(int keyCode, KeyEvent event) {         
+    	//按下键盘上返回按钮
+    	if(keyCode == KeyEvent.KEYCODE_BACK) {
+    		new AlertDialog.Builder(this) 
+    			.setTitle("退出").setMessage("确认要退出吗？")
+    			.setNegativeButton("谁说我要退出", new DialogInterface.OnClickListener() { 
+    				@Override 
+    				public void onClick(DialogInterface dialog, int which) { 
+    				}
+    			}) 
+    			.setPositiveButton("我要走了谁也别拦我", new DialogInterface.OnClickListener() {
+    				@Override 
+    				public void onClick(DialogInterface dialog, int whichButton) { 
+    					finish();
+    				}
+    			}).show(); 
+    		return true; 
+    	}
+    	else {   
+    		return super.onKeyDown(keyCode, event);
+    	}
+	}
+    	
+    @Override 
+    protected void onDestroy() { 
+    	super.onDestroy();
+    	System.exit(0);
+    	//或者下面这种方式
+    	//android.os.Process.killProcess(android.os.Process.myPid());
+    }
 	
 }
