@@ -17,7 +17,7 @@ public class Loading extends Activity {
 
 	int MSG_INIT_OK = 1;
 	RelativeLayout loading;
-	private int count = 60;
+	private int count = 70;
 	private boolean isContinue;
 	private int[] ids = {R.drawable.loading_01, R.drawable.loading_02, R.drawable.loading_03, R.drawable.loading_04, R.drawable.loading_05,
 		  				R.drawable.loading_06, R.drawable.loading_07, R.drawable.loading_08, R.drawable.loading_09, R.drawable.loading_09, 
@@ -30,7 +30,9 @@ public class Loading extends Activity {
 		  				R.drawable.loading_29, R.drawable.loading_30, R.drawable.loading_31, R.drawable.loading_32, R.drawable.loading_33, 
 		  				R.drawable.loading_33, R.drawable.loading_33, R.drawable.loading_33, R.drawable.loading_33, R.drawable.loading_34, 
 		  				R.drawable.loading_35, R.drawable.loading_36, R.drawable.loading_37, R.drawable.loading_38, R.drawable.loading_39, 
-		  				R.drawable.loading_40, R.drawable.loading_41, R.drawable.loading_41, R.drawable.loading_41, R.drawable.loading_41};
+		  				R.drawable.loading_40, R.drawable.loading_41, R.drawable.loading_41, R.drawable.loading_41, R.drawable.loading_41, 
+		  				R.drawable.loading_41, R.drawable.loading_42, R.drawable.loading_43, R.drawable.loading_44, R.drawable.loading_45,
+		  				R.drawable.loading_46, R.drawable.loading_47, R.drawable.loading_48, R.drawable.loading_48, R.drawable.loading_48};
 	  
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -21,19 +21,9 @@
 	    android:orderInCategory="5"
 	    android:title="@string/action_import"/>
 	<item
-	    android:id="@+id/action_export"
+	    android:id="@+id/action_export_audio"
 	    android:orderInCategory="6"
-	    android:title="@string/action_export">
-	    <menu>
-	        <item
-	            android:id="@+id/action_export_audio"
-	            android:orderInCategory="7"
-	            android:title="@string/action_export_audio"/>
-	        <item 
-	            android:id="@+id/action_export_picture"	
-	            android:orderInCategory="8"
-	            android:title="@string/action_export_picture"/>    
-	    </menu>
+	    android:title="@string/action_export_audio">  
 	</item>
 
 </menu>

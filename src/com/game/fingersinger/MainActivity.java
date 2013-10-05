@@ -320,22 +320,23 @@ public class MainActivity extends Activity {
 		audioPath = dirPath + "/FingerSinger/output_audio/";
 		picturePath = dirPath + "/FingerSinger/output_picture";
 		
-		File f1 = new File(this.historyPath); //strPath为路径
+		File f1 = new File(this.historyPath); //historyPath为历史曲目路径
 		if (!f1.exists()) {
 			f1.mkdirs();	//建立文件夹 
 		}
 		
-		File f2 = new File(this.audioPath); //strPath为路径
+		File f2 = new File(this.audioPath); //audioPath为声音导出路径
 		if (!f2.exists()) {
 			f2.mkdirs();	//建立文件夹 
 		}
 		
-		File f3 = new File(this.picturePath); //strPath为路径
+		File f3 = new File(this.picturePath); //picturePath为图片导出路径
 		if (!f3.exists()) {
 			f3.mkdirs();	//建立文件夹
 		}
 	}	
 	
+	//菜单项点击事件处理
 	public boolean onOptionsItemSelected(MenuItem item) {  
 	
 		RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
@@ -343,7 +344,7 @@ public class MainActivity extends Activity {
 	    
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
 		switch(item.getItemId()) { 
-		case R.id.action_playCurrent: 
+		case R.id.action_playCurrent: //播放当前
 			item.setEnabled(false);
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
@@ -360,7 +361,7 @@ public class MainActivity extends Activity {
 			playCurrentThr.start();
 			item.setEnabled(true);
 			break; 
-		case R.id.action_playWhole: 
+		case R.id.action_playWhole: //播放整曲
 			item.setEnabled(false);
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));       	
@@ -378,7 +379,7 @@ public class MainActivity extends Activity {
 			playWholeThr.start();
     		item.setEnabled(true);
 			break; 
-		case R.id.action_save: 
+		case R.id.action_save: 	//保存
 			if (Declare.isSaved == true) break;
 			if (fileName == "") {
 				//edit = (EditText)findViewById(R.id.name_editor);
@@ -429,7 +430,7 @@ public class MainActivity extends Activity {
 				onSaveDialog.show();
 			}
 
-			else {
+			else {	//已有名字
 				//保存应该做的事
 				try {
 					onSave();
@@ -444,7 +445,7 @@ public class MainActivity extends Activity {
 				
 			}
 			break; 
-		case R.id.action_history:
+		case R.id.action_history:	//查看历史曲目
 			if (Declare.isSaved == false) {
 				Dialog isSaveDialog = new AlertDialog.Builder(MainActivity.this).setMessage("当前曲目是否保存？")
 					//设置按钮
@@ -470,18 +471,15 @@ public class MainActivity extends Activity {
 					.setCancelable(true).create();
 				isSaveDialog.show();
 			}
-			else {
+			else {	//已保存
 				//调文件系统，找出文件
 				showFileList();
 			}
 			break; 
-		case R.id.action_import: 
+		case R.id.action_import: //导入图片
 			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break; 
-		case R.id.action_export:
-			item.getSubMenu();
-			break;
-		case R.id.action_export_audio:
+		case R.id.action_export_audio:	//导出音乐
 			if (fileName == "") {
 				//edit = (EditText)findViewById(R.id.name_editor);
 				edit = new EditText(MainActivity.this);
@@ -531,9 +529,6 @@ public class MainActivity extends Activity {
 			}
 
 			break;
-		case R.id.action_export_picture:
-			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
-			break;
 		default:
 			Log.v("debuga", "menu_id: " + item.getItemId());
 			break;
@@ -541,7 +536,8 @@ public class MainActivity extends Activity {
 		return true;  
 	}  
 
-	private void recordSong() {
+	//导出音频，将其录一遍
+	private void recordSong() {	
 		mediaRecord = new MediaRecorder();
 		//mediaRecord.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	//设置音频源
 		mediaRecord.setAudioSource(MediaRecorder.AudioSource.DEFAULT);	//设置音频源
@@ -564,6 +560,7 @@ public class MainActivity extends Activity {
 		mediaRecord.release();
 	}
 
+	//从历史纪录中恢复曲目
 	private void loadFromHistory() {		
 		try{
 			//从文件中恢复
@@ -575,6 +572,11 @@ public class MainActivity extends Activity {
 			drawView.clearCanvas();
 			drawView.reDraw();
 			
+//			for (int i = 0; i < 5; i++){
+//	        	Declare.soundManager[i] = new SoundManager();
+//	        	Declare.soundManager[i].initSounds(getBaseContext(), i);
+//	        }
+			
 		}
 		catch(Exception e){
 	       e.printStackTrace();
@@ -582,8 +584,9 @@ public class MainActivity extends Activity {
 		
 	}
 
+	//显示历史文件列表
 	@SuppressLint("SimpleDateFormat")
-	private void showFileList() {
+	private void showFileList() {	
 		ListView listview = (ListView)this.findViewById(R.id.list_view);
 		List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
 		listview.setBackgroundColor(Color.GRAY);
@@ -683,6 +686,7 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	//保存曲目要做的事
 	private void onSave() throws IOException {
 		File f = new File(this.historyPath); //strPath为路径
 		if (!f.exists()) {
@@ -697,8 +701,10 @@ public class MainActivity extends Activity {
 		Toast.makeText(MainActivity.this, "Already Saved", Toast.LENGTH_SHORT).show();
 	}
 	
+	//从tempoId=start起播放声音至结尾
 	public void playSong(int start) {
 	
+		//确认乐曲的开头
 		if (start == 0) {
 			start = Declare.screen_width;
 			Log.v("pstart", "here");
@@ -712,6 +718,7 @@ public class MainActivity extends Activity {
 			}
 			if (start == Declare.screen_width) start = 0;
 		}
+		//确认乐曲的结尾
 		int end = 0;
 		for (int i = 0; i < 5; i++) {
 			Log.v("playSong", "color: " + i + " size:" + Declare.melody[i].stops.size());
@@ -721,6 +728,7 @@ public class MainActivity extends Activity {
 				end = temp;
 			}
 		}
+		//如果是播放整曲则将画布挪到乐曲开头
 		Log.v("playSong", "before for loop：" + start + "/" + end);
 		if (start * Declare.tempo_length < Declare.melody_start) {
 			Declare.melody_start = start * Declare.tempo_length;
@@ -728,6 +736,7 @@ public class MainActivity extends Activity {
 	        message.what = MOVECANVASTOSTART;                    
 	        myHandler.sendMessage(message);
 		}
+		//从start到end遍历播音，每播一格挪动一格指针或画布
 		for (int i = start; i <= end; i++) {
 			for (int j = 0; j < 5; j++) {
 				if (Declare.melody[j].notes.isEmpty()) continue;
@@ -739,21 +748,15 @@ public class MainActivity extends Activity {
 				}
 				if (note == 0) {
 					Declare.soundManager[j].playSound(0, Declare.melody[j].voice);
-					if (i > 0) {
-						Message message = new Message(); 
-				        message.what = MOVEPOINTER;   
-				        message.arg1 = i * Declare.tempo_length - Declare.melody_start;                 
-				        myHandler.sendMessage(message);
-					}
 				}
 				else {
 					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
-					if (i > 0) {
-						Message message = new Message(); 
-				        message.what = MOVEPOINTER;
-				        message.arg1 = i * Declare.tempo_length - Declare.melody_start;
-				        myHandler.sendMessage(message);
-					}
+				}
+				if (i > 0) {
+					Message message = new Message(); 
+			        message.what = MOVEPOINTER;   
+			        message.arg1 = i * Declare.tempo_length - Declare.melody_start;                 
+			        myHandler.sendMessage(message);
 				}
 			}	
 			if (Declare.menu_status != 4) {
@@ -803,7 +806,6 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onStop();
 	}
-	int left = 10;
 	
 	protected static final int PLAYSTOP = 0x101; 
 	protected static final int PLAYPAUSE = 0x102;

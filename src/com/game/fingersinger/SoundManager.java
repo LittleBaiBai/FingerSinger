@@ -157,8 +157,8 @@ public class SoundManager {
 	{
 		Log.v("playSound", "index:" + index + " voice:" + voice);
 		float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-		//streamVolume = streamVolume / mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-		mSoundPool.play(mSoundPoolMap.get(index), streamVolume * voice, streamVolume * voice, 1, 0, 1f);
+		//mSoundPool.setRate(index, (float) (1 / (Declare.speed + 0.2)));
+		mSoundPool.play(mSoundPoolMap.get(index), streamVolume * voice, streamVolume * voice, 1, 0, 1f);		
 	}
 	
 }
