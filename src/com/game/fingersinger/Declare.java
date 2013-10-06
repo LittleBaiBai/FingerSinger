@@ -6,21 +6,21 @@ import android.app.Application;
 import android.util.Log;
 
 public class Declare extends Application {
-	public static int menu_status;
-	public static int color_status;
-	public static int undo_status;
-	public static int screen_width;
-	public static int screen_height;
-	public static boolean isSaved;
+	
 	public static SoundManager[] soundManager;
-	public static int pointerInScreen;
-	public static int pointerInMelody;
 	public static Melody[] melody;
 	public static LinkedList<Melody> LastEdit;
 	public static int[] colors;
+	public static int melody_start;	
+	public static int pointerInScreen;
 	public static int tempo_length;
+	public static int menu_status;
+	public static int color_status;
+	public static int screen_width;
+	public static int screen_height;
+	public static boolean isSaved;
+	public static boolean moveCanvas;
 	public static float speed;
-	public static int melody_start;
 	
 	public static float button_menu_vertical;
 	public static float button_menu_horizontal;
@@ -29,32 +29,22 @@ public class Declare extends Application {
 	public static float button_undo_vertical;
 	public static float button_undo_horizontal;
 	public static float scale_start_x_y;
-	public static float scale_start_y_x;
 	public static float scale_length_vertical;
-	public static float scale_length_horizontal;
-	public static float note_top_dist;
-	public static float note_button_dist;
+//	public static float note_top_dist;
+//	public static float note_button_dist;
 	public static float note_inner_dist;
 	public static float pointer_pressed;
 	public static float pointer_unpress;
-	public static float pointer_stick;
-	public static float pointer_dx;
-	public static boolean moveCanvas;
 	
 	
 	public Declare(){
 		menu_status = 1;
 		color_status = 1;
-		undo_status = 1;
 		isSaved = true;
-		tempo_length = 40;
 		speed = (float)0.8;
 		moveCanvas = false;
 		melody_start = 0;
 		soundManager = new SoundManager[5];
-		
-		pointerInScreen = 70;
-		pointerInMelody = 0;
 		
 		melody = new Melody[5];
 		for (int i = 0; i < 5; i++) {

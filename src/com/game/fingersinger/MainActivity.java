@@ -177,27 +177,27 @@ public class MainActivity extends Activity {
 	            menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 	            if (Declare.color_status == 0) {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_yellow));
-	    			Declare.soundManager[1].playSound(10 + 22 * 1, Declare.melody[1].voice);
+	    			Declare.soundManager[1].playSound(10, Declare.melody[1].voice);
 					Declare.color_status = 1;
 	            }
 	            else if(Declare.color_status == 1){
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_red));
-	            	Declare.soundManager[2].playSound(10 + 22 * 2, Declare.melody[2].voice);
+	            	Declare.soundManager[2].playSound(10, Declare.melody[2].voice);
 	            	Declare.color_status = 2;
 				}
 	            else if (Declare.color_status == 2){
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_blue));
-	            	Declare.soundManager[3].playSound(10 + 22 * 3, Declare.melody[3].voice);
+	            	Declare.soundManager[3].playSound(10, Declare.melody[3].voice);
 	            	Declare.color_status = 3;
 				}
 	            else if (Declare.color_status == 3){
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_purple));
-	            	Declare.soundManager[4].playSound(10 + 22 * 4, Declare.melody[4].voice);
+	            	Declare.soundManager[4].playSound(10, Declare.melody[4].voice);
 	            	Declare.color_status = 4;
 				}
 				else {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_green));
-	            	Declare.soundManager[0].playSound(10 + 22 * 0, Declare.melody[0].voice);
+	            	Declare.soundManager[0].playSound(10, Declare.melody[0].voice);
 	            	Declare.color_status = 0;
 				}	
 	        }    
@@ -755,7 +755,7 @@ public class MainActivity extends Activity {
 					Declare.soundManager[j].playSound(0, Declare.melody[j].voice);
 				}
 				else {
-					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note) + 22 * j, Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note), Declare.melody[j].voice);
 				}
 				if (i > 0) {
 					Message message = new Message(); 

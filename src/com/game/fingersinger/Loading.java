@@ -132,9 +132,10 @@ public class Loading extends Activity {
 		Declare.scale_length_vertical = (float) (Declare.screen_height * 28 / 480);
 		Declare.pointer_pressed = (float) (Declare.screen_width * 49 / 800);
 		Declare.pointer_unpress = (float) (Declare.screen_width * 42 / 800);
-		Declare.pointer_stick = (float) (Declare.screen_width * 17 / 800);
-		Declare.pointer_dx = (float) (Declare.screen_width * 9 / 800);
 		Declare.note_inner_dist = (float) (Declare.screen_height * 20 / 480);
+		
+		Declare.tempo_length = (int)(Declare.screen_height * 40 / 480);
+		Declare.pointerInScreen = (int) Declare.button_menu_horizontal;
 		
 		Declare.colors[0] = getResources().getColor(R.color.green); 
 		Declare.colors[1] = getResources().getColor(R.color.yellow);
