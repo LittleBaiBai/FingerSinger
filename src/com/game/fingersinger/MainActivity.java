@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.text.format.Time;
 import android.util.Log;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -366,9 +367,6 @@ public class MainActivity extends Activity {
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
 			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));       	
 			Declare.menu_status = 4;
-//			if ((!playCurrentThr.isAlive()) && (!playWholeThr.isAlive())) {
-//        		playCurrentThr.start();
-//        	}
 
 			playWholeThr = new Thread(new Runnable(){			
 				@Override
@@ -403,6 +401,7 @@ public class MainActivity extends Activity {
 									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
 										public void onClick(DialogInterface dialog, int which) {
 											//不做任何操作
+											fileName = "";
 											edit.setVisibility(View.GONE);
 										}
 									}).create();
@@ -480,6 +479,7 @@ public class MainActivity extends Activity {
 			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break; 
 		case R.id.action_export_audio:	//导出音乐
+			Log.v("export", "here");
 			if (fileName == "") {
 				//edit = (EditText)findViewById(R.id.name_editor);
 				edit = new EditText(MainActivity.this);
@@ -502,6 +502,7 @@ public class MainActivity extends Activity {
 									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
 										public void onClick(DialogInterface dialog, int which) {
 											//不做任何操作
+											fileName = "";
 											edit.setVisibility(View.GONE);
 										}
 									}).create();
@@ -516,10 +517,7 @@ public class MainActivity extends Activity {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-								
-								fileName = "";
-								//清空画布要做的事！！
-								drawView.clearCanvas();
+								recordSong();
 															
 							}
 						}  
@@ -527,7 +525,9 @@ public class MainActivity extends Activity {
 					.setCancelable(true).create();
 				onNameDialog.show();
 			}
-
+			else {
+				recordSong();
+			}
 			break;
 		default:
 			Log.v("debuga", "menu_id: " + item.getItemId());
@@ -544,7 +544,9 @@ public class MainActivity extends Activity {
 		mediaRecord.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);	//设置音频输出格式
 		mediaRecord.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);	//设置音频编码
 		
-		mediaRecord.setOutputFile(audioPath + "/" + fileName + ".mp3");
+		Time t = new Time();
+		t.setToNow(); 
+		mediaRecord.setOutputFile(audioPath + "/" + fileName + "_" + t.toString() + ".mp3");
 		try {
 			mediaRecord.prepare();
 		} catch (IllegalStateException e) {
@@ -554,8 +556,11 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		mediaRecord.start();
-		this.playSong(0);
+		Declare.menu_status = 4;
+		playSong(0);
+		Declare.menu_status = 1;
 		mediaRecord.stop();
 		mediaRecord.release();
 	}
@@ -743,7 +748,7 @@ public class MainActivity extends Activity {
 				if (Declare.melody[j].stops.get(Declare.melody[j].stops.size() - 1) < i) continue;
 				int note = Declare.melody[j].notes.get(i);
 				Log.v("playSong", start + "/" + end + " note: " + note);
-				if (Declare.menu_status == 5) {
+				if (Declare.menu_status != 4) {
 					break;
 				}
 				if (note == 0) {
