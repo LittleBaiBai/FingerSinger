@@ -3,7 +3,6 @@ package com.game.fingersinger;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.util.Log;
 import android.util.SparseIntArray;
 
 public class SoundManager {
@@ -254,7 +253,7 @@ public class SoundManager {
 	
 	public void playSound(int index, float voice)
 	{
-		Log.v("playSound", "index:" + index + " voice:" + voice);
+//		Log.v("playSound", "index:" + index + " voice:" + voice);
 		float streamVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		//mSoundPool.setRate(index, (float) (1 / (Declare.speed + 0.2)));
 		mSoundPool.play(mSoundPoolMap.get(index), streamVolume * voice, streamVolume * voice, 1, 0, 1f);		

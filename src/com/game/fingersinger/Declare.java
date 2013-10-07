@@ -1,15 +1,13 @@
 package com.game.fingersinger;
 
-import java.util.LinkedList;
-
 import android.app.Application;
 import android.util.Log;
 
 public class Declare extends Application {
 	
 	public static SoundManager[] soundManager;
-	public static Melody[] melody;
-	public static LinkedList<Melody> LastEdit;
+//	public static Melody[] melody;
+//	public static LinkedList<Melody> LastEdit;
 	public static int[] colors;
 	public static int melody_start;	
 	public static int pointerInScreen;
@@ -46,11 +44,6 @@ public class Declare extends Application {
 		melody_start = 0;
 		soundManager = new SoundManager[5];
 		
-		melody = new Melody[5];
-		for (int i = 0; i < 5; i++) {
-			melody[i] = new Melody(i);
-		}		
-		LastEdit = new LinkedList<Melody>();
 		colors = new int[5];	//»­±ÊÑÕÉ«
 	}
 	

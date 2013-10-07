@@ -7,10 +7,12 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 public class ProgressSeekListener implements OnSeekBarChangeListener{
 	private int mIndex;
 	private int mProgress;
+	private Melody mMelody;
 	
-	public ProgressSeekListener(SeekBar seekBar, int index) {
+	public ProgressSeekListener(SeekBar seekBar, int index, Melody melody) {
 		mIndex = index;
-		mProgress = seekBar.getProgress();
+		mProgress = (int) (melody.voice * 100);
+		mMelody = melody;
 	}
 	
 	@Override
@@ -18,29 +20,22 @@ public class ProgressSeekListener implements OnSeekBarChangeListener{
 		// TODO Auto-generated method stub
 		Log.v("Progress", "onProgressChanged: " + progress);
 		mProgress = progress;
-		if (mIndex != 5) {
-			Declare.soundManager[mIndex].playSound(10 + 22 * mIndex, (float)mProgress / 100);
-		}
+		Declare.soundManager[mIndex].playSound(10, (float)mProgress / 100);
 	}
 
 	@Override
 	public void onStartTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
 		Log.v("Progress", "onStart: " + mProgress);
-		if (mIndex != 5) {
-			Declare.soundManager[mIndex].playSound(10 + 22 * mIndex, Declare.melody[mIndex].voice);
-		}
+		Declare.soundManager[mIndex].playSound(10, (float)mProgress / 100);
 	}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
 		Log.v("Progress", "onStop_before: " + mProgress);
-		if (mIndex != 5) {
-			Declare.melody[mIndex].voice = (float)mProgress / 100;
-			Declare.soundManager[mIndex].playSound(10 + 22 * mIndex, Declare.melody[mIndex].voice);
-			Log.v("Progress", "onStop_after: " + Declare.melody[mIndex].voice);
-		}
+		mMelody.voice = (float)mProgress / 100;
+		Declare.soundManager[mIndex].playSound(10, mMelody.voice);
 	}
 
 }

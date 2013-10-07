@@ -117,10 +117,13 @@ public class MainActivity extends Activity {
 		
 		
 		menuBtn.setOnClickListener(new OnClickListener() {  
-	        
+			
 	        public void onClick(View v) {  
 	        	
-	            Log.v("Button","Click on Menu");
+	        	ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
+				listview.setVisibility(View.GONE);
+				
+//	            Log.v("Button","Click on Menu");
 	            if(Declare.menu_status == 1){
 	            	menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_eraser));
 	            	Declare.menu_status = 2;
@@ -160,44 +163,46 @@ public class MainActivity extends Activity {
 				SeekBar seek4 = (SeekBar)findViewById(R.id.seekBar4);
 				SeekBar seek5 = (SeekBar)findViewById(R.id.seekBar5);
 				
-				seek1.setOnSeekBarChangeListener(new ProgressSeekListener(seek1, 0));
-				seek2.setOnSeekBarChangeListener(new ProgressSeekListener(seek2, 1));
-				seek3.setOnSeekBarChangeListener(new ProgressSeekListener(seek3, 2));
-				seek4.setOnSeekBarChangeListener(new ProgressSeekListener(seek4, 3));
-				seek5.setOnSeekBarChangeListener(new ProgressSeekListener(seek5, 4));
+				seek1.setOnSeekBarChangeListener(new ProgressSeekListener(seek1, 0, drawView.melody[0]));
+				seek2.setOnSeekBarChangeListener(new ProgressSeekListener(seek2, 1, drawView.melody[1]));
+				seek3.setOnSeekBarChangeListener(new ProgressSeekListener(seek3, 2, drawView.melody[2]));
+				seek4.setOnSeekBarChangeListener(new ProgressSeekListener(seek4, 3, drawView.melody[3]));
+				seek5.setOnSeekBarChangeListener(new ProgressSeekListener(seek5, 4, drawView.melody[4]));
 			}
 	            
 	    }); 
 		
 		colorBtn.setOnClickListener(new OnClickListener() {  
 	        
-	        public void onClick(View v) {  
-	            Log.v("Button","Click on Color");
+	        public void onClick(View v) { 
+	        	ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
+				listview.setVisibility(View.GONE);
+//	            Log.v("Button","Click on Color");
 	            Declare.menu_status = 1;
 	            menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 	            if (Declare.color_status == 0) {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_yellow));
-	    			Declare.soundManager[1].playSound(10, Declare.melody[1].voice);
+	    			Declare.soundManager[1].playSound(10, drawView.melody[1].voice);
 					Declare.color_status = 1;
 	            }
 	            else if(Declare.color_status == 1){
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_red));
-	            	Declare.soundManager[2].playSound(10, Declare.melody[2].voice);
+	            	Declare.soundManager[2].playSound(10, drawView.melody[2].voice);
 	            	Declare.color_status = 2;
 				}
 	            else if (Declare.color_status == 2){
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_blue));
-	            	Declare.soundManager[3].playSound(10, Declare.melody[3].voice);
+	            	Declare.soundManager[3].playSound(10, drawView.melody[3].voice);
 	            	Declare.color_status = 3;
 				}
 	            else if (Declare.color_status == 3){
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_purple));
-	            	Declare.soundManager[4].playSound(10, Declare.melody[4].voice);
+	            	Declare.soundManager[4].playSound(10, drawView.melody[4].voice);
 	            	Declare.color_status = 4;
 				}
 				else {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_green));
-	            	Declare.soundManager[0].playSound(10, Declare.melody[0].voice);
+	            	Declare.soundManager[0].playSound(10, drawView.melody[0].voice);
 	            	Declare.color_status = 0;
 				}	
 	        }    
@@ -205,24 +210,12 @@ public class MainActivity extends Activity {
 		
 		undoBtn.setOnClickListener(new OnClickListener() {  
 	        
-	        public void onClick(View v) {  
-	            Log.v("Button","Click on Undo");
-	            if (Declare.menu_status == 4) {
-	            	//暂停
-	            	Message message = new Message(); 
-                    message.what = PLAYPAUSE;                    
-                    myHandler.sendMessage(message);
-	            	Log.v("undo_button", "pressed");
-	            	Declare.menu_status = 5;
-	            }
-	            else if (Declare.menu_status == 5) {
-	            	//播放
-	            	Message message = new Message(); 
-                    message.what = PLAYRESUME;                    
-                    myHandler.sendMessage(message);
-	            	Declare.menu_status = 4;
-	            }
-	            else {
+	        public void onClick(View v) { 
+	        	ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
+				listview.setVisibility(View.GONE);
+//	            Log.v("Button","Click on Undo");
+	            
+	            if (Declare.menu_status != 4 ) {
 	            	drawView.undo();	            	
 	            }
 	        }    
@@ -238,11 +231,11 @@ public class MainActivity extends Activity {
 				x = (int) event.getRawX();  
 				y = (int) event.getRawY();  
 				
-				Log.v("Pointer","Action"+ event_action );
+//				Log.v("Pointer","Action"+ event_action );
 		
 				switch(event_action) {  
 					case MotionEvent.ACTION_DOWN:   
-						Log.v("Press Down Pointer","y = "+y+""+(Declare.screen_height - Declare.pointer_unpress));
+//						Log.v("Press Down Pointer","y = "+y+""+(Declare.screen_height - Declare.pointer_unpress));
 						if(y > Declare.screen_height - Declare.pointer_unpress){
 							validClick = true;
 							Declare.pointerInScreen = x;
@@ -251,7 +244,7 @@ public class MainActivity extends Activity {
 	                case MotionEvent.ACTION_MOVE: 
 	                	if(!validClick)
 	                		break;
-                    	Log.v("Move the pointer","2");
+//                    	Log.v("Move the pointer","2");
                     	
                     	
                     	if(x < 100 ){
@@ -261,9 +254,9 @@ public class MainActivity extends Activity {
                         	Declare.pointerInScreen = (int) Declare.button_menu_horizontal;                        	
                     		Log.v("InScroll","left");
                     		if(mX >= x){
-                    			Declare.melody_start -=20;
+                    			drawView.melody_start -=20;
                     			drawView.reDraw();
-                    			Declare.melody_start -=20;
+                    			drawView.melody_start -=20;
                     			drawView.reDraw();
                     		}
                     		
@@ -275,9 +268,9 @@ public class MainActivity extends Activity {
                         	Declare.pointerInScreen = (int) l;
                     		Log.v("InScroll","right");
                     		if(mX <= x){
-                    			Declare.melody_start += 20;
+                    			drawView.melody_start += 20;
                     			drawView.reDraw();
-                    			Declare.melody_start += 20;
+                    			drawView.melody_start += 20;
                     			drawView.reDraw();
                     		}
                     	}
@@ -291,7 +284,7 @@ public class MainActivity extends Activity {
 	                    break; 
 	                case MotionEvent.ACTION_UP:
 	                	validClick = false;
-	                	Log.v("MelodyStart", ""+Declare.melody_start);
+//	                	Log.v("MelodyStart", "" + drawView.melody_start);
 //	                	if(x < 100 ){
 //                    		l = (int) (x - pointer.getWidth()/2 < Declare.button_menu_horizontal ? Declare.button_menu_horizontal:x - pointer.getWidth()/2);
 //                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
@@ -342,13 +335,14 @@ public class MainActivity extends Activity {
 	
 		RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 	    voiceBarLayout.setVisibility(View.GONE);
-	    
+	    ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
+		listview.setVisibility(View.GONE);
 		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
 		switch(item.getItemId()) { 
 		case R.id.action_playCurrent: //播放当前
 			item.setEnabled(false);
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
-			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
+//			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
 			Declare.menu_status = 4;
 //        	if ((!playCurrentThr.isAlive()) && (!playWholeThr.isAlive())) {
 //        		playCurrentThr.start();
@@ -356,7 +350,7 @@ public class MainActivity extends Activity {
 			playCurrentThr = new Thread(new Runnable(){			
 				@Override
 				public void run() {
-					playSong((Declare.pointerInScreen + Declare.melody_start) / Declare.tempo_length);  				
+					playSong((Declare.pointerInScreen + drawView.melody_start) / Declare.tempo_length);  				
 				}
 			});
 			playCurrentThr.start();
@@ -365,7 +359,7 @@ public class MainActivity extends Activity {
 		case R.id.action_playWhole: //播放整曲
 			item.setEnabled(false);
 			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
-			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));       	
+//			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));       	
 			Declare.menu_status = 4;
 
 			playWholeThr = new Thread(new Runnable(){			
@@ -395,7 +389,7 @@ public class MainActivity extends Activity {
 							//Log.v("debuga", "fileName: " + fileName);
 							
 							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
-								Log.v("debuga", "file exists()");
+//								Log.v("debuga", "file exists()");
 								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
 									.setTitle("保存失败").setMessage("有重名")
 									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
@@ -425,7 +419,7 @@ public class MainActivity extends Activity {
 						}  
 					})
 					.setCancelable(true).create();
-				Log.v("clearCanvas", "outof");
+//				Log.v("clearCanvas", "outof");
 				onSaveDialog.show();
 			}
 
@@ -479,7 +473,7 @@ public class MainActivity extends Activity {
 			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
 			break; 
 		case R.id.action_export_audio:	//导出音乐
-			Log.v("export", "here");
+//			Log.v("export", "here");
 			if (fileName == "") {
 				//edit = (EditText)findViewById(R.id.name_editor);
 				edit = new EditText(MainActivity.this);
@@ -496,7 +490,7 @@ public class MainActivity extends Activity {
 							//Log.v("debuga", "fileName: " + fileName);
 							
 							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
-								Log.v("debuga", "file exists()");
+//								Log.v("debuga", "file exists()");
 								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
 									.setTitle("保存失败").setMessage("有重名")
 									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
@@ -570,7 +564,7 @@ public class MainActivity extends Activity {
 		try{
 			//从文件中恢复
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(historyPath + "/" + fileName + ".psong"));
-			Declare.melody = (Melody[])in.readObject();
+			drawView.melody = (Melody[])in.readObject();
 			in.close();
 			
 			//重画画布
@@ -600,7 +594,7 @@ public class MainActivity extends Activity {
 
 		//Log.v("debuga", f.getPath());
 		if (!(f.exists())) {
-			Log.v("debuga", "not exists");
+//			Log.v("debuga", "not exists");
 			Dialog dialog = new AlertDialog.Builder(MainActivity.this)  
 				//设置对话框要显示的消息  
 				.setMessage("无历史曲目")  
@@ -628,11 +622,11 @@ public class MainActivity extends Activity {
 			}
 			else {
 				SimpleDateFormat dateformat1=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E");
-				Log.v("debuga", "file_list:" + f.exists());
+//				Log.v("debuga", "file_list:" + f.exists());
 				for (int i = 0; i < file_list.length; i++) {
 					if (file_list[i].endsWith(".psong")) {
 						HashMap<String, String> info = new HashMap<String, String>();
-						Log.v("debuga", "aaa:" + dateformat1.format(((new File(historyPath + "/" + file_list[i])).lastModified())) + " length:" + file_list[i]);
+//						Log.v("debuga", "aaa:" + dateformat1.format(((new File(historyPath + "/" + file_list[i])).lastModified())) + " length:" + file_list[i]);
 						info.put("name", file_list[i].substring(0, file_list[i].length() - 6));
 						info.put("time", dateformat1.format(((new File(historyPath + "/" + file_list[i])).lastModified())));
 						data.add(info);
@@ -696,11 +690,11 @@ public class MainActivity extends Activity {
 		File f = new File(this.historyPath); //strPath为路径
 		if (!f.exists()) {
 			f.mkdirs();	//建立文件夹 
-			Log.v("debug", "mkdir~");
-			Log.v("debug", "f.exists(): " + f.getPath() + " " + f.exists());
+//			Log.v("debug", "mkdir~");
+//			Log.v("debug", "f.exists(): " + f.getPath() + " " + f.exists());
 		}
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(historyPath + "/" + fileName + ".psong"));
-		out.writeObject(Declare.melody);
+		out.writeObject(drawView.melody);
 		out.close();
 		Declare.isSaved = true;
 		Toast.makeText(MainActivity.this, "Already Saved", Toast.LENGTH_SHORT).show();
@@ -714,9 +708,9 @@ public class MainActivity extends Activity {
 			start = Declare.screen_width;
 			Log.v("pstart", "here");
 			for (int i = 0; i < 5; i++) {
-				if (Declare.melody[i].starts.size() == 0) continue;
-				int temp = Declare.melody[i].starts.get(0);
-				Log.v("pstart", "i: start/temp: " + i + ": " + start + "/" + temp);
+				if (drawView.melody[i].starts.size() == 0) continue;
+				int temp = drawView.melody[i].starts.get(0);
+//				Log.v("pstart", "i: start/temp: " + i + ": " + start + "/" + temp);
 				if (temp < start) {
 					start = temp;
 				}
@@ -726,17 +720,17 @@ public class MainActivity extends Activity {
 		//确认乐曲的结尾
 		int end = 0;
 		for (int i = 0; i < 5; i++) {
-			Log.v("playSong", "color: " + i + " size:" + Declare.melody[i].stops.size());
-			if (Declare.melody[i].stops.size() == 0) continue;
-			int temp = Declare.melody[i].stops.get(Declare.melody[i].stops.size() - 1);
+			Log.v("playSong", "color: " + i + " size:" + drawView.melody[i].stops.size());
+			if (drawView.melody[i].stops.size() == 0) continue;
+			int temp = drawView.melody[i].stops.get(drawView.melody[i].stops.size() - 1);
 			if (temp > end) {
 				end = temp;
 			}
 		}
 		//如果是播放整曲则将画布挪到乐曲开头
 		Log.v("playSong", "before for loop：" + start + "/" + end);
-		if (start * Declare.tempo_length < Declare.melody_start) {
-			Declare.melody_start = start * Declare.tempo_length;
+		if (start * Declare.tempo_length < drawView.melody_start) {
+			drawView.melody_start = start * Declare.tempo_length;
 			Message message = new Message(); 
 	        message.what = MOVECANVASTOSTART;                    
 	        myHandler.sendMessage(message);
@@ -744,23 +738,23 @@ public class MainActivity extends Activity {
 		//从start到end遍历播音，每播一格挪动一格指针或画布
 		for (int i = start; i <= end; i++) {
 			for (int j = 0; j < 5; j++) {
-				if (Declare.melody[j].notes.isEmpty()) continue;
-				if (Declare.melody[j].stops.get(Declare.melody[j].stops.size() - 1) < i) continue;
-				int note = Declare.melody[j].notes.get(i);
-				Log.v("playSong", start + "/" + end + " note: " + note);
+				if (drawView.melody[j].notes.isEmpty()) continue;
+				if (drawView.melody[j].stops.get(drawView.melody[j].stops.size() - 1) < i) continue;
+				int note = drawView.melody[j].notes.get(i);
+//				Log.v("playSong", start + "/" + end + " note: " + note);
 				if (Declare.menu_status != 4) {
 					break;
 				}
 				if (note == 0) {
-					Declare.soundManager[j].playSound(0, Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(0, drawView.melody[j].voice);
 				}
 				else {
-					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note), Declare.melody[j].voice);
+					Declare.soundManager[j].playSound(Declare.getIndexOfSound(note), drawView.melody[j].voice);
 				}
 				if (i > 0) {
 					Message message = new Message(); 
 			        message.what = MOVEPOINTER;   
-			        message.arg1 = i * Declare.tempo_length - Declare.melody_start;                 
+			        message.arg1 = i * Declare.tempo_length - drawView.melody_start;                 
 			        myHandler.sendMessage(message);
 				}
 			}	
@@ -822,29 +816,29 @@ public class MainActivity extends Activity {
         public void handleMessage(Message msg) { 
              switch (msg.what) { 
              case PLAYSTOP: 
-            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
+            	 //undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
             	 menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
             	 Declare.menu_status = 1;
             	 Toast.makeText(MainActivity.this, R.string.prompt_stop_play, Toast.LENGTH_SHORT).show();
             	 Declare.pointerInScreen = (int) Declare.button_menu_horizontal;
             	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
             	 break;
-             case PLAYPAUSE:
-            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_resume));
-            	 Declare.menu_status = 5;
-            	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
-            	 break; 
-             case PLAYRESUME:
-            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
-            	 Declare.menu_status = 4;
-            	 playCurrentThr = new Thread(new Runnable(){			
-     				@Override
-     				public void run() {
-     					playSong((Declare.pointerInScreen + Declare.melody_start) / Declare.tempo_length);    			
-     				}
-     			 });
-     			 playCurrentThr.start();
-     			 break;
+//             case PLAYPAUSE:
+//            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_resume));
+//            	 Declare.menu_status = 5;
+//            	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
+//            	 break; 
+//             case PLAYRESUME:
+//            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
+//            	 Declare.menu_status = 4;
+//            	 playCurrentThr = new Thread(new Runnable(){			
+//     				@Override
+//     				public void run() {
+//     					playSong((Declare.pointerInScreen + drawView.melody_start) / Declare.tempo_length);    			
+//     				}
+//     			 });
+//     			 playCurrentThr.start();
+//     			 break;
              case MOVEPOINTER:
             	 int pointerInScreen = msg.arg1;
             	 if (pointerInScreen < Declare.screen_width - 200) {
@@ -861,9 +855,9 @@ public class MainActivity extends Activity {
                  	 pointer.startAnimation(animation);
                  	 Declare.pointerInScreen = (int)(pointerInScreen - Declare.pointer_unpress/2);
                  	 Log.v("InScroll","right");
-                 	 Declare.melody_start += 20;
+                 	 drawView.melody_start += 20;
                  	 drawView.reDraw();
-                 	 Declare.melody_start += 20;
+                 	 drawView.melody_start += 20;
                  	 drawView.reDraw();		
                  }
                  break;
