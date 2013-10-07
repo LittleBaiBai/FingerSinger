@@ -792,6 +792,7 @@ public class MainActivity extends Activity {
 		// TODO Auto-generated method stub
 		super.onResume();
 		drawView.reDraw();
+		this.getDirPath();
 	}
 
 	@Override
@@ -811,6 +812,7 @@ public class MainActivity extends Activity {
 	protected static final int PLAYRESUME = 0x103;
 	protected static final int MOVEPOINTER = 0x104;
 	protected static final int MOVECANVASTOSTART = 0x105;
+//	protected static final int MOVECANVASALITTLE = 0x106;
 	@SuppressLint("HandlerLeak")
 	Handler myHandler = new Handler() {
         public void handleMessage(Message msg) { 
@@ -849,20 +851,20 @@ public class MainActivity extends Activity {
                  	 Declare.pointerInScreen = (int)(pointerInScreen - Declare.pointer_unpress/2);
          		 }
                  else {
+//                 	 Log.v("InScroll","right");
+                	 drawView.melody_start += 40;
+                  	 drawView.reDraw();
+                 	 	
                 	 Animation animation = new TranslateAnimation(pointerInScreen - Declare.pointer_unpress/2, (pointerInScreen - Declare.pointer_unpress/2), 0, 0);
                      animation.setDuration((long) (500 * Declare.speed));
                      animation.setFillAfter(false);
                  	 pointer.startAnimation(animation);
                  	 Declare.pointerInScreen = (int)(pointerInScreen - Declare.pointer_unpress/2);
-                 	 Log.v("InScroll","right");
-                 	 drawView.melody_start += 20;
-                 	 drawView.reDraw();
-                 	 drawView.melody_start += 20;
-                 	 drawView.reDraw();		
                  }
                  break;
              case MOVECANVASTOSTART:
             	 drawView.reDraw();
+             
              }
              super.handleMessage(msg); 
         } 
