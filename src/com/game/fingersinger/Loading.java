@@ -133,7 +133,9 @@ public class Loading extends Activity {
 		Declare.pointer_pressed = (float) (Declare.screen_width * 49 / 800);
 		Declare.pointer_unpress = (float) (Declare.screen_width * 42 / 800);
 		Declare.note_inner_dist = (float) (Declare.screen_height * 20 / 480);
-		
+		Declare.note_top_dist = (float) (Declare.screen_height * 23 / 480);
+		Declare.note_button_dist = (float) (Declare.screen_height * 336 / 480);
+
 		Declare.tempo_length = (int)(Declare.screen_height * 40 / 480);
 		Declare.pointerInScreen = (int) Declare.button_menu_horizontal;
 		

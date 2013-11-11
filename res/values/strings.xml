@@ -12,7 +12,7 @@
     <string name="action_import">导入图片</string>
     <string name="action_export">导出曲目</string>
     <string name="button_color">button used for change color</string>
-    <string name="button_menu">button used for change status</string>
+    <string name="button_status">button used for change status</string>
     <string name="button_undo">button used for undo</string>
     <string name="prompt_status_eraser">现在点击想要去掉的曲线即可整条删除</string>
     <string name="prompt_status_voice">调整对应颜色的线条音量</string>
@@ -25,5 +25,10 @@
     <string name="text_liang">量</string>
     <string name="text_speed">速度</string>
     <string name="continue_text">点击屏幕继续</string>
+    <string name="button_page_left">向左翻画布</string>
+    <string name="button_page_right">向右翻画布</string>
+    <string name="button_menu">provide more functions</string>
+    <string name="button_play_current">play from current position</string>
+    <string name="menu_des">some menu items</string>
 
 </resources>

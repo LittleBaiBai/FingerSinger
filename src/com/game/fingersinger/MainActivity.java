@@ -25,14 +25,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
@@ -53,22 +51,24 @@ import android.widget.SeekBar;
 
 public class MainActivity extends Activity {
 
-	private String historyPath, audioPath, picturePath;
+	private String historyPath, audioPath;
 	private String fileName = "";
 	private String tempName = "";
 	private Dialog onSaveDialog;
 
 	private DrawLines drawView;
-	private ScaleView tempoBar;
 	private MediaRecorder mediaRecord;
 	private Thread playCurrentThr, playWholeThr;
-	private ImageButton menuBtn, colorBtn, undoBtn;
+	private ImageButton statusBtn, colorBtn, undoBtn, menuBtn, playBtn;
 	private ImageView pointer;
 	private EditText edit;
+	private ListView listview;
+	private RelativeLayout menuPad, voiceBarLayout;
 	protected boolean inScrollArea;
 	public int inScroll;
 	public float mX = 0, mY = 0;
 	protected boolean validClick;
+	private boolean isPlaying;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,73 +85,57 @@ public class MainActivity extends Activity {
        	initView(); 
 	}	
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-	
 	private void initView() {
 		
 		setContentView(R.layout.activity_main);
-		//LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		LinearLayout tempoBarLayout = (LinearLayout) findViewById(R.id.tempo_bar);
-	    tempoBar = new ScaleView(this);
-	    //tempoBar.setBackgroundColor(getResources().getColor(R.color.blue));
-	    tempoBar.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));
-	    tempoBarLayout.addView(tempoBar);    
-	 //   tempoBar.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_eraser));   
 
 		LinearLayout drawLayout = (LinearLayout) findViewById(R.id.view_draw);
-		//drawLayout.setLayoutParams(new LayoutParams())
 		pointer = (ImageView)findViewById(R.id.pointer);
 		drawView = new DrawLines(this, pointer);
 		drawView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,ViewGroup.LayoutParams.FILL_PARENT));  
 		drawLayout.addView(drawView);
 
-		menuBtn = (ImageButton) findViewById(R.id.button_menu);
+		menuPad = (RelativeLayout) findViewById(R.id.menu_pad);
+		voiceBarLayout = (RelativeLayout) findViewById(R.id.seekbars);
+		listview = (ListView)this.findViewById(R.id.list_view);
+		
+		statusBtn = (ImageButton) findViewById(R.id.button_status);
 	    colorBtn = (ImageButton) findViewById(R.id.button_color);
+	    menuBtn = (ImageButton) findViewById(R.id.button_menu);
+	    playBtn = (ImageButton) findViewById(R.id.button_play_current);
 		undoBtn = (ImageButton) findViewById(R.id.button_undo);
-		
-		
-		menuBtn.setOnClickListener(new OnClickListener() {  
+
+		statusBtn.setOnClickListener(new OnClickListener() {  
 			
 	        public void onClick(View v) {  
-	        	
-	        	ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
-				listview.setVisibility(View.GONE);
+	        	closeOutdatedViews();
 				
 //	            Log.v("Button","Click on Menu");
 	            if(Declare.menu_status == 1){
-	            	menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_eraser));
+	            	statusBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_eraser));
 	            	Declare.menu_status = 2;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_eraser, Toast.LENGTH_SHORT).show();
 				}
 				else if (Declare.menu_status == 2) {
-					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_voice));
+					statusBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_voice));
 					Declare.menu_status = 3;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_voice, Toast.LENGTH_SHORT).show();
 
-					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
+					voiceBarLayout = (RelativeLayout) findViewById(R.id.seekbars);
 				    voiceBarLayout.setVisibility(View.VISIBLE);
 				    
 				    changeVoice();
 				}
 				else if (Declare.menu_status == 3) {
-					RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
 				    voiceBarLayout.setVisibility(View.GONE);
 				    
-				    menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
+				    statusBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 					Declare.menu_status = 1;
 					Toast.makeText(MainActivity.this, R.string.prompt_status_draw, Toast.LENGTH_SHORT).show();
 				}	
 				else {
-	            	Message message = new Message(); 
-                    message.what = PLAYSTOP;                    
-                    myHandler.sendMessage(message);
-                   }
+					Log.v("somethingStrange", "menu_status: " + Declare.menu_status);
+                }
 				
 	       }
 
@@ -171,15 +155,27 @@ public class MainActivity extends Activity {
 			}
 	            
 	    }); 
+		statusBtn.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) { 
+					statusBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pressed));
+					return false;
+				}
+				return false;
+			}
+			
+		});
 		
 		colorBtn.setOnClickListener(new OnClickListener() {  
 	        
 	        public void onClick(View v) { 
-	        	ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
-				listview.setVisibility(View.GONE);
+	        	closeOutdatedViews();
+	        	
 //	            Log.v("Button","Click on Color");
 	            Declare.menu_status = 1;
-	            menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
+	            statusBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
 	            if (Declare.color_status == 0) {
 	            	colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_color_yellow));
 	    			Declare.soundManager[1].playSound(10, drawView.melody[1].voice);
@@ -207,12 +203,56 @@ public class MainActivity extends Activity {
 				}	
 	        }    
 	    }); 
+		colorBtn.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) { 
+					colorBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pressed));
+					return false;
+				}
+				return false;
+			}
+		});
+		
+		playBtn.setOnClickListener(new OnClickListener() {
+			
+			public void onClick(View v) {
+				closeOutdatedViews();
+				
+				if (!isPlaying) {
+		        	prepareForPlay();
+					playCurrentThr = new Thread(new Runnable(){			
+						@Override
+						public void run() {
+							playSong((Declare.pointerInScreen + drawView.melody_start) / Declare.tempo_length);  				
+						}
+					});
+					playCurrentThr.start();
+				}
+				else {
+	            	Message message = new Message(); 
+                    message.what = PLAYSTOP;                    
+                    myHandler.sendMessage(message);
+				}
+			}
+		});
+		playBtn.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) { 
+					playBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pressed));
+					return false;
+				}
+				return false;
+			}
+		});
 		
 		undoBtn.setOnClickListener(new OnClickListener() {  
 	        
 	        public void onClick(View v) { 
-	        	ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
-				listview.setVisibility(View.GONE);
+	        	closeOutdatedViews();
 //	            Log.v("Button","Click on Undo");
 	            
 	            if (Declare.menu_status != 4 ) {
@@ -220,99 +260,343 @@ public class MainActivity extends Activity {
 	            }
 	        }    
 	    }); 
+		undoBtn.setOnTouchListener(new OnTouchListener() {
 
-		pointer.setOnTouchListener(new OnTouchListener(){
-			int x,y;
-			
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				int event_action=event.getAction(); 
-				int l = 0;
-				x = (int) event.getRawX();  
-				y = (int) event.getRawY();  
-				
-//				Log.v("Pointer","Action"+ event_action );
-		
-				switch(event_action) {  
-					case MotionEvent.ACTION_DOWN:   
-//						Log.v("Press Down Pointer","y = "+y+""+(Declare.screen_height - Declare.pointer_unpress));
-						if(y > Declare.screen_height - Declare.pointer_unpress){
-							validClick = true;
-							Declare.pointerInScreen = x;
-						}
-						break;
-	                case MotionEvent.ACTION_MOVE: 
-	                	if(!validClick)
-	                		break;
-//                    	Log.v("Move the pointer","2");
-                    	
-                    	
-                    	if(x < 100 ){
-                    		l = (int) (x - pointer.getWidth()/2 < Declare.button_menu_horizontal ? Declare.button_menu_horizontal:x - pointer.getWidth()/2);
-                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
-                        	v.invalidate();
-                        	Declare.pointerInScreen = (int) Declare.button_menu_horizontal;                        	
-                    		Log.v("InScroll","left");
-                    		if(mX >= x){
-                    			drawView.melody_start -=20;
-                    			drawView.reDraw();
-                    			drawView.melody_start -=20;
-                    			drawView.reDraw();
-                    		}
-                    		
-                    	}	 
-                    	else if(x > Declare.screen_width - 200 ){
-                    		l = (int) (x + pointer.getWidth()/2 > (Declare.screen_width-Declare.button_color_horizontal)? (Declare.screen_width-Declare.button_color_horizontal - pointer.getWidth()/2):x - pointer.getWidth()/2);
-                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
-                        	v.invalidate();
-                        	Declare.pointerInScreen = (int) l;
-                    		Log.v("InScroll","right");
-                    		if(mX <= x){
-                    			drawView.melody_start += 20;
-                    			drawView.reDraw();
-                    			drawView.melody_start += 20;
-                    			drawView.reDraw();
-                    		}
-                    	}
-                    	else{
-                    		v.layout( x - pointer.getWidth()/2 , 0, x + pointer.getWidth()/2, Declare.screen_height);    
-                        	v.invalidate();
-                        	Declare.pointerInScreen = x - pointer.getWidth()/2;
-                    	}
-                    		
-                    	
-	                    break; 
-	                case MotionEvent.ACTION_UP:
-	                	validClick = false;
-//	                	Log.v("MelodyStart", "" + drawView.melody_start);
-//	                	if(x < 100 ){
-//                    		l = (int) (x - pointer.getWidth()/2 < Declare.button_menu_horizontal ? Declare.button_menu_horizontal:x - pointer.getWidth()/2);
-//                    		v.layout( l , 0, l + pointer.getWidth(), Declare.screen_height);    
-//                        	v.invalidate();
-//	                	}
-//	                	v.layout(x - pointer.getWidth()/2, 0, x + pointer.getWidth()/2, Declare.screen_height);    
-//                    	v.invalidate();
-//                    	validClick = false;
-//	                    break;     
-	                }    
-					mX = x;
-					mY = y;
-					return true;
+				if (event.getAction() == MotionEvent.ACTION_DOWN) { 
+					undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pressed));
+					return false;
+				}
+				else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+					if (v.findFocus().equals(v)) {
+						Log.v("focus", "leave");
+						undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
+						return false;					
+					}
+				}
+				else if (event.getAction() == MotionEvent.ACTION_UP) { 
+					undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
+					return false;
+				}
+				return false;
 			}
 		});
+		
+		menuBtn.setOnClickListener(new OnClickListener() {
 
+	        public void onClick(View v) { 
+	        	if (menuPad.getVisibility() == View.GONE) {
+	        		menuPad.setVisibility(View.VISIBLE);
+	        		drawView.setClickable(false);
+	        		ImageButton mPlayWhole = (ImageButton) findViewById(R.id.menu_play_whole);
+	        		ImageButton mSave = (ImageButton) findViewById(R.id.menu_save);
+	        		ImageButton mNew = (ImageButton) findViewById(R.id.menu_new);
+	        		ImageButton mHistory = (ImageButton) findViewById(R.id.menu_history);
+	        		ImageButton mOutput = (ImageButton) findViewById(R.id.menu_audio_output);
+	        		ImageButton mRender = (ImageButton) findViewById(R.id.menu_audio_render);
+	        		ImageButton mInport = (ImageButton) findViewById(R.id.menu_image_import);
+	        		ImageButton mHelp = (ImageButton) findViewById(R.id.menu_help);
+	        		ImageButton mAbout = (ImageButton) findViewById(R.id.menu_about);
+	        		
+	        		mPlayWhole.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	    		        	prepareForPlay();
+	        				playWholeThr = new Thread(new Runnable(){			
+	        					@Override
+	        					public void run() {
+	        						playSong(0);  
+	        					}
+	        				});
+	        				playWholeThr.start();
+	        	        }  
+	        		});
+	        		
+	        		mSave.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	        	        	if (Declare.isSaved == true) return;
+	        				if (fileName == "") {
+	        					//edit = (EditText)findViewById(R.id.name_editor);
+	        					edit = new EditText(MainActivity.this);
+	        					edit.setSingleLine();
+	        					edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
+	        				
+	        					//提醒用户做保存的事情的一个框
+	        					onSaveDialog = new AlertDialog.Builder(MainActivity.this).setTitle("保存")
+	        						.setMessage("想一个靠谱的名字吧＝ ＝、").setView(edit)
+	        						//设置按钮
+	        						.setPositiveButton("保存", new DialogInterface.OnClickListener(){  
+	        							public void onClick(DialogInterface dialog, int which) {
+	        								fileName = edit.getText().toString();
+	        								//Log.v("debuga", "fileName: " + fileName);
+	        								
+	        								if (new File(historyPath + "/" + fileName + ".psong").exists()) {
+//	        									Log.v("debuga", "file exists()");
+	        									AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
+	        										.setTitle("保存失败").setMessage("有重名")
+	        										.setPositiveButton("确定", new DialogInterface.OnClickListener(){
+	        											public void onClick(DialogInterface dialog, int which) {
+	        												//不做任何操作
+	        												fileName = "";
+	        												edit.setVisibility(View.GONE);
+	        											}
+	        										}).create();
+	        									temp.show();
+	        								}
+	        								else {
+	        									//保存应该做的事
+	        									try {
+	        										onSave();
+	        									} catch (IOException e) {
+	        										// TODO Auto-generated catch block
+	        										e.printStackTrace();
+	        									}								
+	        								}
+	        							}  
+	        						})
+	        						.setCancelable(true).create();
+	        					onSaveDialog.show();
+	        				}
+
+	        				else {	//已有名字
+	        					//保存应该做的事
+	        					try {
+	        						onSave();
+	        					} catch (IOException e) {
+	        						// TODO Auto-generated catch block
+	        						e.printStackTrace();
+	        					}    					
+	        				}
+	        	        }  
+	        		});
+	        		
+	        		mNew.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	if (Declare.isSaved == false) {
+	        					Dialog isSaveDialog = new AlertDialog.Builder(MainActivity.this).setMessage("当前曲目是否保存？")
+	        						//设置按钮
+	        						.setPositiveButton("保存", new DialogInterface.OnClickListener(){ 
+	        							
+	        							@Override
+	        							public void onClick(DialogInterface dialog, int which) {
+	        								onSaveDialog.show();
+	        								Declare.isSaved = true;
+	        								//新建画布
+	        								newCanvas();
+	        							}  
+	        						})
+	        						.setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+	        							
+	        							@Override
+	        							public void onClick(DialogInterface dialog, int which) {
+	        								Declare.isSaved = true;
+	        								//新建画布
+	        								newCanvas();
+	        							}
+	        						})
+	        						.setCancelable(true).create();
+	        					isSaveDialog.show();
+	        				}
+	        				else {	//已保存
+	        					//新建画布
+	        					newCanvas();
+	        				}
+	        	        }
+
+						private void newCanvas() {
+							
+	        	        	menuPad.setVisibility(View.GONE);
+	        	        	fileName = "";
+							//清空画布要做的事！！
+							Log.v("clearCanvas", "mNew");
+							drawView.clearCanvas();
+						}  
+	        		});
+
+	        		mHistory.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	        	        	if (Declare.isSaved == false) {
+	        					Dialog isSaveDialog = new AlertDialog.Builder(MainActivity.this).setMessage("当前曲目是否保存？")
+	        						//设置按钮
+	        						.setPositiveButton("保存", new DialogInterface.OnClickListener(){ 
+	        							
+	        							@Override
+	        							public void onClick(DialogInterface dialog, int which) {
+	        								onSaveDialog.show();
+	        								Declare.isSaved = true;
+	        								//调文件系统，找出文件
+	        								showFileList();
+	        							}  
+	        						})
+	        						.setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+	        							
+	        							@Override
+	        							public void onClick(DialogInterface dialog, int which) {
+	        								Declare.isSaved = true;
+	        								//调文件系统，找出文件
+	        								showFileList();
+	        							}
+	        						})
+	        						.setCancelable(true).create();
+	        					isSaveDialog.show();
+	        				}
+	        				else {	//已保存
+	        					//调文件系统，找出文件
+	        					showFileList();
+	        				}
+	        	        }  
+	        		});
+
+	        		mOutput.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	        	        	Log.v("export", "here");
+	        				if (fileName == "") {
+	        					//edit = (EditText)findViewById(R.id.name_editor);
+	        					edit = new EditText(MainActivity.this);
+	        					edit.setSingleLine();
+	        					edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
+	        				
+	        					//提醒用户做保存的事情的一个框
+	        					Dialog onNameDialog = new AlertDialog.Builder(MainActivity.this).setTitle("得先保存")
+	        						.setMessage("想一个靠谱的名字吧＝ ＝、").setView(edit)
+	        						//设置按钮
+	        						.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
+	        							public void onClick(DialogInterface dialog, int which) {
+	        								fileName = edit.getText().toString();
+	        								//Log.v("debuga", "fileName: " + fileName);
+	        								
+	        								if (new File(historyPath + "/" + fileName + ".psong").exists()) {
+//	        									Log.v("debuga", "file exists()");
+	        									AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
+	        										.setTitle("保存失败").setMessage("有重名")
+	        										.setPositiveButton("确定", new DialogInterface.OnClickListener(){
+	        											public void onClick(DialogInterface dialog, int which) {
+	        												//不做任何操作
+	        												fileName = "";
+	        												edit.setVisibility(View.GONE);
+	        											}
+	        										}).create();
+	        									temp.show();
+	        								}
+	        								else {
+	        									//保存应该做的事
+	        									try {
+	        										onSave();
+	        										recordSong();
+	        									} catch (IOException e) {
+	        										// TODO Auto-generated catch block
+	        										e.printStackTrace();
+	        									}
+	        									recordSong();
+	        																
+	        								}
+	        							}  
+	        						})
+	        						.setCancelable(true).create();
+	        					onNameDialog.show();
+	        				}
+	        				else {
+	        					recordSong();
+	        				}
+	        	        }  
+	        		});
+
+	        		mRender.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	    		        	Log.v("menuItem", "audio render");
+	        	        }  
+	        		});
+
+	        		mInport.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	    		        	Log.v("menuItem", "import image");
+	        	        }  
+	        		});
+
+	        		mHelp.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	    		        	Log.v("menuItem", "help");
+	        	        }  
+	        		});
+
+	        		mAbout.setOnClickListener(new OnClickListener() {
+	        			 
+	        	        public void onClick(View v) { 
+	        	        	menuPad.setVisibility(View.GONE);
+	    		        	Log.v("menuItem", "about");
+	        	        }  
+	        		});
+	        		
+	        	}
+	        	else {
+	        		menuPad.setVisibility(View.GONE);
+	        	}
+	        }  
+		});
+		menuBtn.setOnTouchListener(new OnTouchListener() {
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN) { 
+					Log.i("log", "action_down");
+					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pressed));
+					return false;
+				}
+				else if (event.getAction() == MotionEvent.ACTION_UP) {
+					Log.i("log", "action_up");
+					menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_main_menu));
+					return false;
+				}
+				return false;
+			}
+		});
+		
 	} 
+
+	protected void prepareForPlay() {
+		playBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
+		menuBtn.setClickable(false);
+		colorBtn.setClickable(false);
+		statusBtn.setClickable(false);
+		undoBtn.setClickable(false);
+	}
+
+	protected void afterPlay() {
+		this.isPlaying = false;
+		menuBtn.setClickable(true);
+		colorBtn.setClickable(true);
+		statusBtn.setClickable(true);
+		undoBtn.setClickable(true);
+	}
 
 	private void getDirPath() {
 		String dirPath;
 		if (Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
 			dirPath = Environment.getExternalStorageDirectory().getPath();
 		}
-		else 
-			dirPath = Environment.getRootDirectory().getPath() + "/FingerSinger/history/";
+		else {
+			historyPath = "";
+			audioPath = "";
+			promptNoSdcard();
+			return;
+		}
 		historyPath = dirPath + "/FingerSinger/history/";
-		audioPath = dirPath + "/FingerSinger/output_audio/";
-		picturePath = dirPath + "/FingerSinger/output_picture";
+		audioPath = dirPath + "/FingerSinger/output/";;
 		
 		File f1 = new File(this.historyPath); //historyPath为历史曲目路径
 		if (!f1.exists()) {
@@ -323,215 +607,19 @@ public class MainActivity extends Activity {
 		if (!f2.exists()) {
 			f2.mkdirs();	//建立文件夹 
 		}
-		
-		File f3 = new File(this.picturePath); //picturePath为图片导出路径
-		if (!f3.exists()) {
-			f3.mkdirs();	//建立文件夹
-		}
+
 	}	
 	
-	//菜单项点击事件处理
-	public boolean onOptionsItemSelected(MenuItem item) {  
-	
-		RelativeLayout voiceBarLayout = (RelativeLayout) findViewById(R.id.voice_bar);
-	    voiceBarLayout.setVisibility(View.GONE);
-	    ListView listview = (ListView)MainActivity.this.findViewById(R.id.list_view);
-		listview.setVisibility(View.GONE);
-		// 在此说明一下，Menu相当于一个容器，而MenuItem相当于容器中容纳的东西 
-		switch(item.getItemId()) { 
-		case R.id.action_playCurrent: //播放当前
-			item.setEnabled(false);
-			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
-//			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
-			Declare.menu_status = 4;
-//        	if ((!playCurrentThr.isAlive()) && (!playWholeThr.isAlive())) {
-//        		playCurrentThr.start();
-//        	}
-			playCurrentThr = new Thread(new Runnable(){			
-				@Override
-				public void run() {
-					playSong((Declare.pointerInScreen + drawView.melody_start) / Declare.tempo_length);  				
-				}
-			});
-			playCurrentThr.start();
-			item.setEnabled(true);
-			break; 
-		case R.id.action_playWhole: //播放整曲
-			item.setEnabled(false);
-			menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_stop));
-//			undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));       	
-			Declare.menu_status = 4;
-
-			playWholeThr = new Thread(new Runnable(){			
-				@Override
-				public void run() {
-					playSong(0);  
-				}
-			});
-			playWholeThr.start();
-    		item.setEnabled(true);
-			break; 
-		case R.id.action_save: 	//保存
-			if (Declare.isSaved == true) break;
-			if (fileName == "") {
-				//edit = (EditText)findViewById(R.id.name_editor);
-				edit = new EditText(MainActivity.this);
-				edit.setSingleLine();
-				edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
-			
-				//提醒用户做保存的事情的一个框
-				onSaveDialog = new AlertDialog.Builder(MainActivity.this).setTitle("保存")
-					.setMessage("想一个靠谱的名字吧＝ ＝、").setView(edit)
-					//设置按钮
-					.setPositiveButton("保存", new DialogInterface.OnClickListener(){  
-						public void onClick(DialogInterface dialog, int which) {
-							fileName = edit.getText().toString();
-							//Log.v("debuga", "fileName: " + fileName);
-							
-							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
-//								Log.v("debuga", "file exists()");
-								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
-									.setTitle("保存失败").setMessage("有重名")
-									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
-										public void onClick(DialogInterface dialog, int which) {
-											//不做任何操作
-											fileName = "";
-											edit.setVisibility(View.GONE);
-										}
-									}).create();
-								temp.show();
-							}
-							else {
-								//保存应该做的事
-								try {
-									onSave();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-//								
-//								fileName = "";
-//								//清空画布要做的事！！
-//								Log.v("clearCanvas", "inside");
-//								drawView.clearCanvas();
-															
-							}
-						}  
-					})
-					.setCancelable(true).create();
-//				Log.v("clearCanvas", "outof");
-				onSaveDialog.show();
-			}
-
-			else {	//已有名字
-				//保存应该做的事
-				try {
-					onSave();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-//				fileName = "";
-//				//清空画布要做的事！！
-//				Log.v("clearCanvas", "else");
-//				drawView.clearCanvas();
-				
-			}
-			break; 
-		case R.id.action_history:	//查看历史曲目
-			if (Declare.isSaved == false) {
-				Dialog isSaveDialog = new AlertDialog.Builder(MainActivity.this).setMessage("当前曲目是否保存？")
-					//设置按钮
-					.setPositiveButton("保存", new DialogInterface.OnClickListener(){ 
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							onSaveDialog.show();
-							Declare.isSaved = true;
-							//调文件系统，找出文件
-							showFileList();
-						}  
-					})
-					.setNegativeButton("不保存", new DialogInterface.OnClickListener() {
-						
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Declare.isSaved = true;
-							//调文件系统，找出文件
-							showFileList();
-						}
-					})
-					.setCancelable(true).create();
-				isSaveDialog.show();
-			}
-			else {	//已保存
-				//调文件系统，找出文件
-				showFileList();
-			}
-			break; 
-		case R.id.action_import: //导入图片
-			Toast.makeText(MainActivity.this, "此功能尚未完成，敬请期待", Toast.LENGTH_SHORT).show();
-			break; 
-		case R.id.action_export_audio:	//导出音乐
-//			Log.v("export", "here");
-			if (fileName == "") {
-				//edit = (EditText)findViewById(R.id.name_editor);
-				edit = new EditText(MainActivity.this);
-				edit.setSingleLine();
-				edit.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE); 
-			
-				//提醒用户做保存的事情的一个框
-				Dialog onNameDialog = new AlertDialog.Builder(MainActivity.this).setTitle("得先保存")
-					.setMessage("想一个靠谱的名字吧＝ ＝、").setView(edit)
-					//设置按钮
-					.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
-						public void onClick(DialogInterface dialog, int which) {
-							fileName = edit.getText().toString();
-							//Log.v("debuga", "fileName: " + fileName);
-							
-							if (new File(historyPath + "/" + fileName + ".psong").exists()) {
-//								Log.v("debuga", "file exists()");
-								AlertDialog temp = new AlertDialog.Builder(MainActivity.this)
-									.setTitle("保存失败").setMessage("有重名")
-									.setPositiveButton("确定", new DialogInterface.OnClickListener(){
-										public void onClick(DialogInterface dialog, int which) {
-											//不做任何操作
-											fileName = "";
-											edit.setVisibility(View.GONE);
-										}
-									}).create();
-								temp.show();
-							}
-							else {
-								//保存应该做的事
-								try {
-									onSave();
-									recordSong();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								recordSong();
-															
-							}
-						}  
-					})
-					.setCancelable(true).create();
-				onNameDialog.show();
-			}
-			else {
-				recordSong();
-			}
-			break;
-		default:
-			Log.v("debuga", "menu_id: " + item.getItemId());
-			break;
-		} 
-		return true;  
-	}  
+	private void promptNoSdcard() {
+		Toast.makeText(MainActivity.this, "No Sdcard!", Toast.LENGTH_SHORT).show();
+	}
 
 	//导出音频，将其录一遍
 	private void recordSong() {	
+		if (this.audioPath.equals("")) {
+			this.promptNoSdcard();
+			return;
+		}
 		mediaRecord = new MediaRecorder();
 		//mediaRecord.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);	//设置音频源
 		mediaRecord.setAudioSource(MediaRecorder.AudioSource.DEFAULT);	//设置音频源
@@ -557,10 +645,15 @@ public class MainActivity extends Activity {
 		Declare.menu_status = 1;
 		mediaRecord.stop();
 		mediaRecord.release();
+		Toast.makeText(MainActivity.this, "保存在/sdcard/FingerSinger/output/目录下", Toast.LENGTH_SHORT).show();
 	}
 
 	//从历史纪录中恢复曲目
-	private void loadFromHistory() {		
+	private void loadFromHistory() {
+		if (this.historyPath.equals("")) {
+			this.promptNoSdcard();
+			return;
+		}
 		try{
 			//从文件中恢复
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(historyPath + "/" + fileName + ".psong"));
@@ -570,11 +663,6 @@ public class MainActivity extends Activity {
 			//重画画布
 			drawView.clearCanvas();
 			drawView.reDraw();
-			
-//			for (int i = 0; i < 5; i++){
-//	        	Declare.soundManager[i] = new SoundManager();
-//	        	Declare.soundManager[i].initSounds(getBaseContext(), i);
-//	        }
 			
 		}
 		catch(Exception e){
@@ -586,7 +674,6 @@ public class MainActivity extends Activity {
 	//显示历史文件列表
 	@SuppressLint("SimpleDateFormat")
 	private void showFileList() {	
-		ListView listview = (ListView)this.findViewById(R.id.list_view);
 		List<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
 		listview.setBackgroundColor(Color.GRAY);
 		File f = new File(this.historyPath); //strPath为路径
@@ -613,7 +700,7 @@ public class MainActivity extends Activity {
 					//设置对话框要显示的消息  
 					.setMessage("无历史曲目")  
 					//设置按钮
-					.setPositiveButton("确定", new DialogInterface.OnClickListener(){  
+					.setPositiveButton("确定", new DialogInterface.OnClickListener() {  
 						public void onClick(DialogInterface dialog, int which) {  
 							//好像什么都不用干
 						}
@@ -685,8 +772,18 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	public void closeOutdatedViews() {
+		voiceBarLayout.setVisibility(View.GONE);  
+		listview.setVisibility(View.GONE);
+		menuPad.setVisibility(View.GONE);
+	}
+	
 	//保存曲目要做的事
 	private void onSave() throws IOException {
+		if (this.historyPath.equals("")) {
+			this.promptNoSdcard();
+			return;
+		}
 		File f = new File(this.historyPath); //strPath为路径
 		if (!f.exists()) {
 			f.mkdirs();	//建立文件夹 
@@ -702,7 +799,7 @@ public class MainActivity extends Activity {
 	
 	//从tempoId=start起播放声音至结尾
 	public void playSong(int start) {
-	
+		this.isPlaying = true;
 		//确认乐曲的开头
 		if (start == 0) {
 			start = Declare.screen_width;
@@ -735,6 +832,7 @@ public class MainActivity extends Activity {
 	        message.what = MOVECANVASTOSTART;                    
 	        myHandler.sendMessage(message);
 		}
+		Log.v("sing a song", "start!");
 		//从start到end遍历播音，每播一格挪动一格指针或画布
 		for (int i = start; i <= end; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -772,7 +870,7 @@ public class MainActivity extends Activity {
 		Message message = new Message(); 
         message.what = PLAYSTOP;                    
         myHandler.sendMessage(message);
-			
+		this.isPlaying = false;	
 	}
 
 	@Override
@@ -818,29 +916,12 @@ public class MainActivity extends Activity {
         public void handleMessage(Message msg) { 
              switch (msg.what) { 
              case PLAYSTOP: 
-            	 //undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_undo));
-            	 menuBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_status_draw));
-            	 Declare.menu_status = 1;
+            	 isPlaying = false;
+            	 playBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_play_current));
             	 Toast.makeText(MainActivity.this, R.string.prompt_stop_play, Toast.LENGTH_SHORT).show();
             	 Declare.pointerInScreen = (int) Declare.button_menu_horizontal;
-            	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
+            	 afterPlay();
             	 break;
-//             case PLAYPAUSE:
-//            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_resume));
-//            	 Declare.menu_status = 5;
-//            	 //pointer.layout((int)Declare.pointerInScreen, 0, (int)Declare.pointerInScreen + (int)Declare.pointer_unpress, Declare.screen_height);
-//            	 break; 
-//             case PLAYRESUME:
-//            	 undoBtn.setImageDrawable(getResources().getDrawable(R.drawable.button_pause));
-//            	 Declare.menu_status = 4;
-//            	 playCurrentThr = new Thread(new Runnable(){			
-//     				@Override
-//     				public void run() {
-//     					playSong((Declare.pointerInScreen + drawView.melody_start) / Declare.tempo_length);    			
-//     				}
-//     			 });
-//     			 playCurrentThr.start();
-//     			 break;
              case MOVEPOINTER:
             	 int pointerInScreen = msg.arg1;
             	 if (pointerInScreen < Declare.screen_width - 200) {
@@ -863,8 +944,8 @@ public class MainActivity extends Activity {
                  }
                  break;
              case MOVECANVASTOSTART:
-            	 drawView.reDraw();
-             
+            	 drawView.reDraw();    
+            	 break;
              }
              super.handleMessage(msg); 
         } 
@@ -874,19 +955,24 @@ public class MainActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {         
     	//按下键盘上返回按钮
     	if(keyCode == KeyEvent.KEYCODE_BACK) {
-    		new AlertDialog.Builder(this) 
-    			.setTitle("退出").setMessage("确认要退出吗？")
-    			.setNegativeButton("谁说我要退出", new DialogInterface.OnClickListener() { 
-    				@Override 
-    				public void onClick(DialogInterface dialog, int which) { 
-    				}
-    			}) 
-    			.setPositiveButton("我要走了谁也别拦我", new DialogInterface.OnClickListener() {
-    				@Override 
-    				public void onClick(DialogInterface dialog, int whichButton) { 
-    					finish();
-    				}
-    			}).show(); 
+    		if (listview.getVisibility() == View.VISIBLE) {
+    			listview.setVisibility(View.GONE);
+    		}
+    		else {
+	    		new AlertDialog.Builder(this) 
+	    			.setTitle("退出").setMessage("确认要退出吗？")
+	    			.setNegativeButton("谁说我要退出", new DialogInterface.OnClickListener() { 
+	    				@Override 
+	    				public void onClick(DialogInterface dialog, int which) { 
+	    				}
+	    			}) 
+	    			.setPositiveButton("我要走了谁也别拦我", new DialogInterface.OnClickListener() {
+	    				@Override 
+	    				public void onClick(DialogInterface dialog, int whichButton) { 
+	    					finish();
+	    				}
+	    			}).show(); 
+    		}
     		return true; 
     	}
     	else {   

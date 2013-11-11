@@ -23,7 +23,7 @@
         android:background="#00000000"
         android:ems="10"
         android:enabled="false"
-        android:inputType="text"
+        android:inputType="textNoSuggestions"
         android:visibility="gone"
         android:text="@string/continue_text"
         android:textColor="@color/purple"
