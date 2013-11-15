@@ -3,7 +3,16 @@
     android:id="@+id/loading_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" 
-    android:background="@drawable/loading_48">
+    android:background="#FF000000">
+    
+    <ImageView
+        android:id="@+id/loading_picture"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent" 
+        android:background="@drawable/loading"
+        android:contentDescription="@string/des">
+        
+    </ImageView>
    
     <ProgressBar
         android:id="@+id/loading_progress"
@@ -11,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
-
+<!-- 
     <EditText
         android:id="@+id/continue_text"
         android:layout_width="wrap_content"
@@ -28,5 +37,5 @@
         android:text="@string/continue_text"
         android:textColor="@color/purple"
         android:textSize="30sp" />
-    
+  -->   
 </RelativeLayout>

@@ -3,7 +3,14 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
-    android:background="#FF000000">
+    android:background="@drawable/background">
+    
+    <ImageView
+        android:id="@+id/background_shade"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88000000"
+        android:contentDescription="@string/des"/>
     
     <ListView
         android:id="@+id/list_view"
@@ -23,29 +30,29 @@
 		android:layout_centerHorizontal="true"
         android:background="#00000000" >
 		     
-  	  	<ImageButton
+  	  	<com.game.fingersinger.LongPressButton
         	android:id="@+id/button_page_left"
         	android:layout_width="wrap_content"
         	android:layout_height="match_parent"
         	android:layout_alignParentLeft="true"
         	android:layout_alignParentBottom="true"
         	android:orientation="horizontal" 
-        	android:src="@drawable/button_page_left" 
+        	android:src="@drawable/xml_page_left" 
         	android:background="#00000000"
         	android:contentDescription="@string/button_page_left" >
-    	</ImageButton>
+    	</com.game.fingersinger.LongPressButton>
 
-    	<ImageButton
+    	<com.game.fingersinger.LongPressButton
         	android:id="@+id/button_page_right"
         	android:layout_width="wrap_content"
         	android:layout_height="match_parent"
         	android:layout_alignParentBottom="true"
         	android:layout_alignParentRight="true"
         	android:orientation="horizontal" 
-        	android:src="@drawable/button_page_right" 
+        	android:src="@drawable/xml_page_right" 
         	android:background="#00000000"
         	android:contentDescription="@string/button_page_right">
-    	</ImageButton>
+    	</com.game.fingersinger.LongPressButton>
     
     	<LinearLayout 
     	    android:id="@+id/button_layout"
@@ -61,7 +68,7 @@
         		android:layout_width="76dp"
         		android:layout_height="match_parent"
         		android:orientation="horizontal" 
-        		android:src="@drawable/button_status_draw" 
+        		android:src="@drawable/xml_status_draw" 
         		android:background="#00000000"
         		android:contentDescription="@string/button_menu">
     		</ImageButton>
@@ -71,7 +78,7 @@
         		android:layout_width="76dp"
         		android:layout_height="match_parent"
         		android:orientation="horizontal" 
-        		android:src="@drawable/button_color_green" 
+        		android:src="@drawable/xml_color_blue" 
         		android:background="#00000000"
         		android:contentDescription="@string/button_color">
     		</ImageButton>
@@ -81,7 +88,7 @@
         		android:layout_width="76dp"
         		android:layout_height="match_parent"
         		android:orientation="horizontal" 
-        		android:src="@drawable/button_main_menu" 
+        		android:src="@drawable/xml_main_menu" 
         		android:background="#00000000"
         		android:contentDescription="@string/button_menu">
     		</ImageButton>
@@ -91,7 +98,7 @@
         		android:layout_width="76dp"
         		android:layout_height="match_parent"
         		android:orientation="horizontal" 
-        		android:src="@drawable/button_play_current" 
+        		android:src="@drawable/xml_play_current" 
         		android:background="#00000000"
         		android:contentDescription="@string/button_play_current">
     		</ImageButton>
@@ -101,7 +108,7 @@
         		android:layout_width="76dp"
         		android:layout_height="match_parent"
         		android:orientation="horizontal" 
-        		android:src="@drawable/button_undo" 
+        		android:src="@drawable/xml_undo" 
         		android:background="#00000000"
         		android:contentDescription="@string/button_undo">
     		</ImageButton> 	        	    
@@ -139,7 +146,7 @@
                 android:id="@+id/seekBar1"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:background="@color/green"
+                android:background="@color/blue"
                 android:max="10"
                 android:progress="8" />
 	
@@ -157,7 +164,7 @@
 			    android:layout_width="match_parent"
 			    android:layout_height="30dp"
 			    android:layout_marginTop="15dp"
-			    android:background="@color/red"
+			    android:background="@color/purple"
 			    android:max="100"
 			    android:progress="80" />
 			
@@ -166,7 +173,7 @@
 			    android:layout_width="match_parent"
 			    android:layout_height="30dp"
 			    android:layout_marginTop="15dp"
-			    android:background="@color/blue"
+			    android:background="@color/orange"
 			    android:max="100"
 			    android:progress="80" />
 		
@@ -175,7 +182,7 @@
 			    android:layout_width="match_parent"
 			    android:layout_height="30dp"
 			    android:layout_marginTop="15dp"
-			    android:background="@color/purple"
+			    android:background="@color/green"
 			    android:max="100"
 			    android:progress="80" />			
         </LinearLayout>
@@ -255,7 +262,7 @@
             android:background="@drawable/menu_arrow"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:contentDescription="@string/menu_des"/>
+            android:contentDescription="@string/des"/>
         
         <LinearLayout
             android:id="@+id/menu_background"
@@ -280,9 +287,9 @@
 	        		android:layout_height="wrap_content"
                 	android:layout_marginLeft="4dp"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_play_whole" 
+	        		android:src="@drawable/xml_menu_play_whole" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 	
 	    		
 	    		<ImageButton
@@ -290,9 +297,9 @@
 	        		android:layout_width="wrap_content"
 	        		android:layout_height="wrap_content"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_save" 
+	        		android:src="@drawable/xml_menu_save" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 	
 	    		
 	    		<ImageButton
@@ -300,9 +307,9 @@
 	        		android:layout_width="wrap_content"
 	        		android:layout_height="wrap_content"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_new" 
+	        		android:src="@drawable/xml_menu_new" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 		    		
             </LinearLayout>
             
@@ -319,19 +326,19 @@
 	        		android:layout_height="wrap_content"
                 	android:layout_marginLeft="4dp"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_history" 
+	        		android:src="@drawable/xml_menu_history" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 	
 	    		   
 	    		<ImageButton
-	        		android:id="@+id/menu_audio_output"
+	        		android:id="@+id/menu_audio_export"
 	        		android:layout_width="wrap_content"
 	        		android:layout_height="wrap_content"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_audio_output" 
+	        		android:src="@drawable/xml_menu_audio_export" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 	
 	    		
 	    		<ImageButton
@@ -339,9 +346,9 @@
 	    		    android:layout_width="wrap_content"
 	    		    android:layout_height="wrap_content"
 	    		    android:background="#00000000"
-	    		    android:contentDescription="@string/menu_des"
+	    		    android:contentDescription="@string/des"
 	    		    android:orientation="horizontal"
-	    		    android:src="@drawable/menu_audio_render" >
+	    		    android:src="@drawable/xml_menu_audio_render" >
 	    		</ImageButton> 	    		
             </LinearLayout>
             
@@ -358,9 +365,9 @@
 	        		android:layout_height="wrap_content"
                 	android:layout_marginLeft="4dp"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_image_import" 
+	        		android:src="@drawable/xml_menu_image_import" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 	
 	    		
 	    		<ImageButton
@@ -368,9 +375,9 @@
 	        		android:layout_width="wrap_content"
 	        		android:layout_height="wrap_content"
 	        		android:orientation="horizontal" 
-	        		android:src="@drawable/menu_help" 
+	        		android:src="@drawable/xml_menu_help" 
 	        		android:background="#00000000"
-	        		android:contentDescription="@string/menu_des">
+	        		android:contentDescription="@string/des">
 	    		</ImageButton> 
 	
 	    		<ImageButton
@@ -378,9 +385,9 @@
 	    		    android:layout_width="wrap_content"
 	    		    android:layout_height="wrap_content"
 	    		    android:background="#00000000"
-	    		    android:contentDescription="@string/menu_des"
+	    		    android:contentDescription="@string/des"
 	    		    android:orientation="horizontal"
-	    		    android:src="@drawable/menu_about" >
+	    		    android:src="@drawable/xml_menu_about" >
 	    		</ImageButton>  
             </LinearLayout>		
         </LinearLayout>    
@@ -393,7 +400,9 @@
         android:visibility="gone"
 	    android:background="#00000000"
         android:src="@drawable/pointer_unpress" 
-        android:contentDescription="@string/button_pointer"/>
+        android:contentDescription="@string/button_pointer">
+        
+    </ImageView>
   
     <EditText
 	    android:id="@+id/name_editor"  
@@ -405,4 +414,12 @@
 	    android:visibility="gone">  
 	</EditText>  
   
+    <ImageView
+        android:id="@+id/about"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/xml_about"
+        android:contentDescription="@string/des"
+        android:visibility="gone"/>
+    
 </RelativeLayout>

@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <resources>
-        <color name="red">#fd93a2</color>
-        <color name="yellow">#ffea00</color>
-        <color name="purple">#5384cd</color>
-        <color name="green">#92f56b</color>
-        <color name="blue">#52fcf6</color>
+        <!-- color name="red">#9b5ea3</color>
+        <color name="yellow">#f8b516</color>
+        <color name="purple">#006db6</color>
+        <color name="green">#d3d0b5</color>
+        <color name="blue">#47bcc6</color> -->
+        <color name="blue">#be425ebc</color>
+        <color name="yellow">#bef8b516</color>
+        <color name="purple">#be9b5ea3</color>
+        <color name="orange">#bedf7c21</color>
+        <color name="green">#be47bcc6</color>
+        
         <color name="grey">#d6d7d5</color>
+        <color name="black">#000000</color>
     </resources>

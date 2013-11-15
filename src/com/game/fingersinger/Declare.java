@@ -20,18 +20,10 @@ public class Declare extends Application {
 	public static boolean moveCanvas;
 	public static float speed;
 	
-	public static float button_menu_vertical;
-	public static float button_menu_horizontal;
-	public static float button_color_vertical;
-	public static float button_color_horizontal;
-	public static float button_undo_vertical;
-	public static float button_undo_horizontal;
-	public static float scale_start_x_y;
-	public static float scale_length_vertical;
 	public static float note_top_dist;
 	public static float note_button_dist;
 	public static float note_inner_dist;
-	public static float pointer_pressed;
+	public static float draw_height;
 	public static float pointer_unpress;
 	
 	
@@ -52,9 +44,12 @@ public class Declare extends Application {
 			Log.v("SoundIndex", note + " / 22: <" + Declare.note_top_dist);
 			return 22;
 		}
-		else if (note >= Declare.note_button_dist) {
+		else if (note >= Declare.note_button_dist && note < Declare.draw_height) {
 			Log.v("SoundIndex", note + " / 1: >=" + Declare.note_button_dist);
 			return 1;
+		}
+		else if (note > Declare.draw_height){
+			return 0;
 		}
 		else {
 //			int temp = 20 - (int)((note - Declare.note_top_dist) / Declare.note_inner_dist);

@@ -29,6 +29,6 @@
     <string name="button_page_right">向右翻画布</string>
     <string name="button_menu">provide more functions</string>
     <string name="button_play_current">play from current position</string>
-    <string name="menu_des">some menu items</string>
+    <string name="des">some menu items</string>
 
 </resources>
