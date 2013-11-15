@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loading_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:background="#FF000000">
+    
+    <ImageView
+        android:id="@+id/loading_picture"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent" 
+        android:background="@drawable/loading"
+        android:contentDescription="@string/des">
+        
+    </ImageView>
+   
+<!-- 
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+    <EditText
+        android:id="@+id/continue_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="46dp"
+        android:layout_marginLeft="39dp"
+        android:background="#00000000"
+        android:ems="10"
+        android:enabled="false"
+        android:inputType="textNoSuggestions"
+        android:visibility="gone"
+        android:text="@string/continue_text"
+        android:textColor="@color/purple"
+        android:textSize="30sp" />
+  -->   
+</RelativeLayout>

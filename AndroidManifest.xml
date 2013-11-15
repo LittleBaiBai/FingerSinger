@@ -24,8 +24,15 @@
            
         </activity>
         
+        <activity
+            android:name="com.game.fingersinger.GuideActivity"
+            android:label="@string/app_name" 
+            android:screenOrientation="landscape" >
+           
+        </activity>
+        
         <activity 
-            android:name="com.game.fingersinger.Loading"
+            android:name="com.game.fingersinger.SplashActivity"
             android:screenOrientation="landscape">
             
             <intent-filter>

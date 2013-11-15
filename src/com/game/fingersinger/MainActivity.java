@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements RepeatListener {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //设定调整音量为媒体音量,当暂停播放的时候调整音量就不会再默认调整铃声音量了
 
-        this.setContentView(R.layout.loading);
+        this.setContentView(R.layout.activity_main);
    //     new Thread(new moveCanvasThread()).start();
         getDirPath();   
        	initView(); 
@@ -327,7 +327,8 @@ public class MainActivity extends Activity implements RepeatListener {
 	        			 
 	        	        public void onClick(View v) { 
 	        	        	closeOutdatedViews();
-	    		        	Log.v("menuItem", "help");
+	        	        	Intent intent = new Intent(MainActivity.this, GuideActivity.class);
+	        	    		MainActivity.this.startActivity(intent);
 	        	        }  
 	        		});
 
