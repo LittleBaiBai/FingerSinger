@@ -130,7 +130,7 @@
         android:layout_above="@+id/menu_bar"
         android:background="#80000000"
         android:orientation="vertical" 
-        android:visibility="gone">
+        >
         
         <LinearLayout
             android:id="@+id/voice_seek"
@@ -138,85 +138,85 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="90dp"
             android:layout_marginRight="120dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="20dp"
             android:orientation="vertical" >
             
             <SeekBar
                 android:id="@+id/seekBar1"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="26dp"
                 android:background="@color/blue"
                 android:max="10"
-                android:progress="8" />
+                android:progress="7" />
 	
 			<SeekBar
 			    android:id="@+id/seekBar2"
 			    android:layout_width="match_parent"
-			    android:layout_height="30dp"
+			    android:layout_height="26dp"
 			    android:layout_marginTop="20dp"
 			    android:background="@color/yellow"
-			    android:max="20"
-			    android:progress="16" />
+			    android:max="10"
+			    android:progress="7" />
 			
 			<SeekBar
 			    android:id="@+id/seekBar3"
 			    android:layout_width="match_parent"
-			    android:layout_height="30dp"
+			    android:layout_height="26dp"
 			    android:layout_marginTop="15dp"
 			    android:background="@color/purple"
-			    android:max="100"
-			    android:progress="80" />
+			    android:max="10"
+			    android:progress="7" />
 			
 			<SeekBar
 			    android:id="@+id/seekBar4"
 			    android:layout_width="match_parent"
-			    android:layout_height="30dp"
+			    android:layout_height="26dp"
 			    android:layout_marginTop="15dp"
 			    android:background="@color/orange"
-			    android:max="100"
-			    android:progress="80" />
+			    android:max="10"
+			    android:progress="7" />
 		
 			<SeekBar
 			    android:id="@+id/seekBar5"
 			    android:layout_width="match_parent"
-			    android:layout_height="30dp"
+			    android:layout_height="26dp"
 			    android:layout_marginTop="15dp"
 			    android:background="@color/green"
-			    android:max="100"
-			    android:progress="80" />			
+			    android:max="10"
+			    android:progress="7" />			
         </LinearLayout>
 
 		<EditText
 		    android:id="@+id/editText1"
-		    android:layout_width="50dp"
+		    android:layout_width="40dp"
 		    android:layout_height="wrap_content"
 		    android:layout_alignLeft="@+id/editText2"
 		    android:layout_alignTop="@+id/voice_seek"
-		    android:layout_marginTop="20dp"
+		    android:layout_marginTop="30dp"
 		    android:background="#00000000"
 		    android:ems="10"
 		    android:enabled="false"
 		    android:inputType="text"
 		    android:text="@string/text_yin"
 		    android:textColor="#FFFFFFFF"
-		    android:textSize="50sp" />
+		    android:textSize="40sp" />
 
 		<EditText
 		    android:id="@+id/editText2"
-		    android:layout_width="50dp"
+		    android:layout_width="40dp"
 		    android:layout_height="wrap_content"
 		    android:layout_alignBottom="@+id/voice_seek"
 		    android:layout_alignParentLeft="true"
-		    android:layout_marginLeft="20dp"
-		    android:layout_marginBottom="20dp"
+		    android:layout_marginLeft="35dp"
+		    android:layout_marginBottom="30dp"
 		    android:background="#00000000"
 		    android:ems="10"
 		    android:enabled="false"
 		    android:inputType="text"
 		    android:text="@string/text_liang"
 		    android:textColor="#FFFFFFFF"
-		    android:textSize="50sp" />
+		    android:textSize="40sp" />
 
 		<com.game.fingersinger.VerticalSeekBar
 		    android:id="@+id/speedBar"
@@ -226,7 +226,6 @@
 		    android:layout_alignLeft="@+id/editText3"
 		    android:layout_alignTop="@+id/voice_seek"
 		    android:layout_marginLeft="15dp"
-		    android:layout_marginTop="5dp"
 		    android:max="80"
 		    android:progress="20" />
 

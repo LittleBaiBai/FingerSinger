@@ -80,6 +80,7 @@ public class MainActivity extends Activity implements RepeatListener {
 	protected static final int NEWCANVASDIALOG = 0x113;
 	protected static final int RECORDDIALOG = 0x114;
 	protected static final int SAVEONLY = 0x115;
+	protected static final int HELPDIALOG = 0x116;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -327,8 +328,7 @@ public class MainActivity extends Activity implements RepeatListener {
 	        			 
 	        	        public void onClick(View v) { 
 	        	        	closeOutdatedViews();
-	        	        	Intent intent = new Intent(MainActivity.this, GuideActivity.class);
-	        	    		MainActivity.this.startActivity(intent);
+	        	        	new SaveDialog(HELPDIALOG);
 	        	        }  
 	        		});
 
@@ -710,6 +710,13 @@ public class MainActivity extends Activity implements RepeatListener {
 		menuPad.setVisibility(View.GONE);
 	}
 	
+	private void startGuide() {
+		Intent intent = new Intent(MainActivity.this, GuideActivity.class);
+//      intent.putExtra("melody", drawView.melody);
+		MainActivity.this.startActivity(intent); 
+//		MainActivity.this.finish();
+	}
+	
 	//保存曲目要做的事
 	private void onSave() throws IOException {
 		if (this.historyPath.equals("")) {
@@ -965,6 +972,9 @@ public class MainActivity extends Activity implements RepeatListener {
 				break;
 			case RECORDDIALOG:
 				recordSong();
+				break;
+			case HELPDIALOG:
+				startGuide();
 				break;
 			case SAVEONLY:
 				break;
