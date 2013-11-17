@@ -302,7 +302,15 @@ public class MainActivity extends Activity implements RepeatListener {
 	        			 
 	        	        public void onClick(View v) { 
 	        	        	closeOutdatedViews();
-	        	        	new SaveDialog(RECORDDIALOG);
+//	        	        	new Thread(new Runnable() {
+//
+//								@Override
+//								public void run() {
+//			        	        	new SaveDialog(RECORDDIALOG); 
+//								}
+//	        	        		
+//	        	        	});
+	        	        	new SaveDialog(RECORDDIALOG); 
 	        	        }  
 	        		});
 
@@ -339,7 +347,7 @@ public class MainActivity extends Activity implements RepeatListener {
 	        	        	ImageView about = (ImageView) findViewById(R.id.about);
 
 	        	    		AlphaAnimation aa = new AlphaAnimation(0.0f, 1.0f);  
-	        	    		aa.setDuration(2000);
+	        	    		aa.setDuration(500);
 	        	    		about.setAnimation(aa);
 	        	    		
 	        	        	about.setVisibility(View.VISIBLE);
@@ -348,7 +356,7 @@ public class MainActivity extends Activity implements RepeatListener {
 								@Override
 								public void onClick(View arg0) {
 			        	    		AlphaAnimation aa = new AlphaAnimation(1.0f, 0.0f);  
-			        	    		aa.setDuration(2000);
+			        	    		aa.setDuration(1000);
 			        	    		arg0.setAnimation(aa);
 			        	    		
 									arg0.setVisibility(View.GONE);
@@ -376,8 +384,9 @@ public class MainActivity extends Activity implements RepeatListener {
 		Log.v("onActivityResult", "requestCode/resultCode: " + requestCode + "/" + resultCode);
 		if (requestCode == 0 && resultCode == RESULT_OK && null != data) {
 			Bitmap cameraBitmap = (Bitmap) data.getExtras().get("data");
-			
 			newCanvas(false);
+			countColor(cameraBitmap);
+			
 			BitmapDrawable background = new BitmapDrawable(cameraBitmap);
 			
 			int height = background.getIntrinsicHeight();
@@ -386,6 +395,109 @@ public class MainActivity extends Activity implements RepeatListener {
 			RelativeLayout main = (RelativeLayout) findViewById(R.id.main_layout);
 			main.setBackgroundDrawable(background);
 		}
+	}
+
+	private void countColor(Bitmap bitmap) {
+		int cNum = 5;
+		int metre = 31;
+		int[] color = new int[cNum];
+		int green = 0, yellow = 1, red = 2, grey = 3, black = 4;
+		int[] height = new int[metre];
+		for (int i = 0; i < Declare.screen_width; i++) {
+			for (int j = 0; j < Declare.screen_height; j++) {
+				String str = Integer.toHexString(bitmap.getPixel(i, j));
+				int temp = Integer.parseInt(str.substring(2), 16);
+//				Log.v("Pixels", "x/y/pixel: " + i + "/" + j + "/" + str + "/" + Integer.toHexString(temp));
+				height[i/metre] += Integer.parseInt(str.substring(2, 4), 16);
+//				Log.v("Pixel added", "height[" + i / metre + "]: " + height[i/metre]);
+				if (temp <= 0x00ff66 && temp >= 0x00ff00) {	//绿
+					Log.v("decide color", "green: " + temp);
+					color[green]++;
+				}
+				else if (temp <= 0xffff00 && temp >= 0xffcc33) {//黄
+					Log.v("decide color", "yellow: " + temp);
+					color[yellow]++;
+				}
+				else if (temp <= 0xff0000 && temp >= 0xff0066) {//红
+					Log.v("decide color", "red: " + temp);
+					color[red]++;
+				}
+				else if (temp <= 0xcccccc && temp >= 0x333333) {//灰
+					Log.v("decide color", "grey: " + temp);
+					color[grey]++;
+				}
+				else if (temp <= 0x222222 && temp >= 0x000000) {//黑
+					Log.v("decide color", "black: " + temp);
+					color[black]++;
+				}
+//				else {//其他
+//					color[other]++;
+//				}
+			}
+		}
+		//给颜色排序 
+		int first = 0, second = 1; 
+		for (int i = 1; i < cNum; i++) {
+			if (color[i] > color[first]) {
+				first = i;
+				second = first;
+			}
+			else if (color[i] > color[second]) {
+				second = i;
+			}
+		}
+		//给乐曲定基调
+		boolean[] used = new boolean[cNum];
+		if ((first == black && second == red) || (first == red && second == black)) {
+			//恐怖,速度0.7
+			int color1 = getRandomUseful(used);
+			int color2 = getRandomUseful(used);
+			Log.v("mode", "Thrill: " + color1 + "/" + color2);
+		}
+		else if ((first == grey && second == black) || (first == black && second == grey)) {
+			//悲伤，速度0.3
+			int color1 = getRandomUseful(used);
+			int color2 = getRandomUseful(used);
+			Log.v("mode", "Sad: " + color1 + "/" + color2);
+		}
+		else if ((first == red && second == yellow) || (first == yellow && second == red)) {
+			//快乐，速度0.5
+			int color1 = getRandomUseful(used);
+			int color2 = getRandomUseful(used);
+			Log.v("mode", "Happy: " + color1 + "/" + color2);
+		}
+		else if ((first == yellow && second == green) || (first == green && second == yellow)) {
+			//治愈
+			int color1 = getRandomUseful(used);
+			int color2 = getRandomUseful(used);
+			Log.v("mode", "Comfort: " + color1 + "/" + color2);
+		}
+		else {
+			//普通
+			int color1 = getRandomUseful(used);
+			int color2 = getRandomUseful(used);
+			Log.v("mode", "Normal: " + color1 + "/" + color2);
+		}
+		//计算主调，算极差
+		int min = Integer.MAX_VALUE, max = 0;
+		for (int i = 0; i < metre; i++) {
+			if (height[i] > max) max = height[i];
+			if (height[i] < min) min = height[i];
+		}
+		for (int i = 0; i < metre; i++) {
+			height[i] = (height[i] - min) % 23;
+			Log.v("MainKey", "note: " + height[i]);
+		}
+		int color3 = getRandomUseful(used);
+	}
+
+	private int getRandomUseful(boolean[] used) {
+		int color = ((int)(100 * Math.random())) % 5;
+		while(used[color]) {
+			color = ((int)(100 * Math.random())) % 5;
+		}
+		used[color] = true;
+		return color;
 	}
 
 	//清空画布，参数代表是否将背景重置
@@ -402,10 +514,7 @@ public class MainActivity extends Activity implements RepeatListener {
 
 	//选择图库中的图片
 	private void pickImage() {
-//		Intent i = new Intent(Intent.ACTION_PICK, 
-//    			android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);//调用android的图库
-//    	startActivityForResult(i, 2);
-		Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 	    intent.addCategory(Intent.CATEGORY_OPENABLE);
 	    intent.setType("image/*");
 	    intent.putExtra("crop", "true");

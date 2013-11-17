@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -19,6 +20,7 @@ public class SplashActivity extends Activity {
 
 	private static final int GO_HOME = 1000;
 	private static final int GO_GUIDE = 1001;
+	private static final int ANIMATIONSTART = 1002;
 	// 延迟3秒
 	private static final long SPLASH_DELAY_MILLIS = 3000;
 
@@ -42,6 +44,9 @@ public class SplashActivity extends Activity {
 			case GO_GUIDE:
 				goGuide();
 				break;
+			case ANIMATIONSTART:
+		        loading.startAnimation(as);
+		        break;
 			}
 			super.handleMessage(msg);
 		}
@@ -49,9 +54,11 @@ public class SplashActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);		//隐去标题栏（应用程序的名字）  
+		super.onCreate(savedInstanceState);	
+		//隐去标题栏（应用程序的名字）  
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         //隐去状态栏部分(电池等图标和一切修饰部分)
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.splash);
         loading = (ImageView) findViewById(R.id.loading_picture);
@@ -73,16 +80,15 @@ public class SplashActivity extends Activity {
         as = new AnimationSet(true);//定义一个新AnimationSet
         
 		AlphaAnimation aa = new AlphaAnimation(1.0f, 0.0f);  
-		aa.setDuration(3000);
+		aa.setDuration(1000);
 		as.addAnimation(aa);
 		
-		ScaleAnimation sa = new ScaleAnimation(0.1f, 3.0f, 0.1f, 3.0f,
+		ScaleAnimation sa = new ScaleAnimation(1.0f, 3.0f, 1.0f, 3.0f,
 				Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 //		结束x坐标伸缩尺寸，结束y坐标伸缩尺寸，x轴的百分比，y轴的百分比)//全员float可，
-		sa.setDuration(4000);
+		sa.setDuration(1500);
 		as.addAnimation(sa);
-		
-        loading.startAnimation(as);
+		mHandler.sendEmptyMessageDelayed(ANIMATIONSTART, 2000);
         
 		// 判断程序与第几次运行，如果是第一次运行则跳转到引导界面，否则跳转到主界面
 		if (!isFirstIn) {
@@ -119,9 +125,7 @@ public class SplashActivity extends Activity {
 		Declare.screen_height = getWindowManager().getDefaultDisplay().getHeight();
 		
 		Declare.pointer_unpress = (float) (Declare.screen_width * 42 / 800);
-		Declare.note_inner_dist = (float) (Declare.screen_height * 20 / 480);
-		Declare.note_top_dist = (float) (Declare.screen_height * 23 / 480);
-		Declare.note_button_dist = (float) (Declare.screen_height * 336 / 480);
+		Declare.note_inner_dist = (float) (Declare.screen_height * 16 / 480);
 		Declare.draw_height = (float) (Declare.screen_height * 366 / 480);
 		Declare.tempo_length = (int)(Declare.screen_height * 40 / 480);
 		Declare.pointerInScreen = (int) 0;

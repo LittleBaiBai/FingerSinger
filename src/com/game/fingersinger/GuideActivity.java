@@ -9,6 +9,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -27,7 +29,12 @@ public class GuideActivity extends Activity implements OnPageChangeListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.guide);
+		//隐去标题栏（应用程序的名字）  
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //隐去状态栏部分(电池等图标和一切修饰部分)
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        setContentView(R.layout.guide);
 
 		// ???濮????椤甸??
 		initViews();
@@ -47,6 +54,7 @@ public class GuideActivity extends Activity implements OnPageChangeListener {
 		views.add(inflater.inflate(R.layout.guide_4, null));
 		views.add(inflater.inflate(R.layout.guide_5, null));
 		views.add(inflater.inflate(R.layout.guide_6, null));
+		views.add(inflater.inflate(R.layout.guide_7, null));
 
 		// ???濮????Adapter
 		vpAdapter = new ViewPagerAdapter(views, this);

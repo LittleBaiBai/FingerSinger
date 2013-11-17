@@ -3,6 +3,6 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item 
         android:state_pressed="true" 
-        android:drawable="@drawable/pointer_pressdown" />
-    <item android:drawable="@drawable/pointer_unpress" />
+        android:drawable="@drawable/pressed_button_enter" />
+    <item android:drawable="@drawable/button_enter" />
 </selector>

@@ -130,7 +130,7 @@
         android:layout_above="@+id/menu_bar"
         android:background="#80000000"
         android:orientation="vertical" 
-        >
+        android:visibility="gone">
         
         <LinearLayout
             android:id="@+id/voice_seek"
@@ -247,9 +247,9 @@
 
     <RelativeLayout 
         android:id="@+id/menu_pad"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#00000000"
+        android:background="@drawable/menu_pad_shade"
         android:layout_centerHorizontal="true"
         android:layout_above="@+id/menu_bar"
         android:visibility="gone">
